@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">POvMT Projeto Piloto</string>
+    <string name="hint_activity_title">Titulo</string>
 </resources>
