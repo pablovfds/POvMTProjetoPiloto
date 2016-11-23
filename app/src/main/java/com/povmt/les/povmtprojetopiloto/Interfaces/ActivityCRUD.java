@@ -6,7 +6,7 @@ import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import java.util.List;
 
 public interface ActivityCRUD {
-    void insertActivity(String name, DatabaseReference mDatabase, ActivityListener listener);
+    void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, ActivityListener listener);
 
     void removeActitityById(String activityId, DatabaseReference mDatabase, ActivityListener listener);
 

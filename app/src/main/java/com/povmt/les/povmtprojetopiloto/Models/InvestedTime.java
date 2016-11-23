@@ -1,39 +1,46 @@
 package com.povmt.les.povmtprojetopiloto.Models;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class InvestedTime {
-    private int time;
-    private Date createdAt;
-    private ActivityItem activityItem;
+    private double time;
+    private String createdAt;
+    private String activityItemId;
 
-    public InvestedTime(int time, Date createdAt, ActivityItem activityItem) {
-        this.time = time;
-        this.createdAt = new Date();
-        this.activityItem = activityItem;
+    public InvestedTime() {
     }
 
-    public int getTime() {
+    public InvestedTime(double time) {
+        this.time = time;
+        Calendar cal = new GregorianCalendar();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setCalendar(cal);
+        this.createdAt = dateFormat.format(cal.getTime());
+    }
+
+    public double getTime() {
         return time;
     }
 
-    public void setTime(int time) {
+    public void setTime(double time) {
         this.time = time;
     }
 
-    public Date getCreatedAt() {
+    public String getActivityItemId() {
+        return activityItemId;
+    }
+
+    public void setActivityItemId(String activityItemId) {
+        this.activityItemId = activityItemId;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public ActivityItem getActivityItem() {
-        return activityItem;
-    }
-
-    public void setActivityItem(ActivityItem activityItem) {
-        this.activityItem = activityItem;
     }
 }

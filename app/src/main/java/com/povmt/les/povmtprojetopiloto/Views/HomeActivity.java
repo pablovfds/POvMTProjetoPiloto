@@ -1,18 +1,17 @@
 package com.povmt.les.povmtprojetopiloto.Views;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Intent;
-import android.support.design.widget.Snackbar;
+import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.LoginFilter;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -21,23 +20,22 @@ import com.povmt.les.povmtprojetopiloto.Adapters.ActivityItemAdapter;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
 import com.povmt.les.povmtprojetopiloto.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.github.yavski.fabspeeddial.FabSpeedDial;
-import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
+import butterknife.OnClick;
 
-public class HomeActivity extends AppCompatActivity implements ActivityListener{
+public class HomeActivity extends AppCompatActivity implements ActivityListener {
 
-    @BindView(R.id.fabSpeedDial_add)
-    FabSpeedDial fabSpeedDial;
-
-    @BindView(R.id.recycleview_activities)
-    RecyclerView recyclerViewActivities;
+    @BindView(R.id.recycleview_activities) RecyclerView recyclerViewActivities;
 
     private DatabaseReference mDatabase;
     private RecyclerView recyclerView;
@@ -56,38 +54,10 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener{
 
         activityItems = new ArrayList<>();
         retrieveAllActivities();
-
-        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter() {
-            @Override
-            public boolean onMenuItemSelected(MenuItem menuItem) {
-                //TODO: Start some activity
-
-                if (menuItem.getItemId() == R.id.action_add_ti){
-                    Intent intent = new Intent(HomeActivity.this, RegisterInvestedTimeActivity.class);
-                    startActivity(intent);
-                } else if (menuItem.getItemId() == R.id.action_add_activity){
-                    registerNewActivity();
-                }
-
-                return false;
-            }
-        });
     }
 
-    private void retrieveAllActivities() {
-
-        recyclerView = (RecyclerView) findViewById(R.id.recycleview_activities);
-        adapter = new ActivityItemAdapter(this, activityItems);
-        recyclerView.setHasFixedSize(true);
-        FirebaseController.getInstance().retrieveAllActivities(mDatabase,activityItems, HomeActivity.this);
-
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(llm);
-        recyclerView.setAdapter(adapter);
-    }
-
-    private void registerNewActivity() {
+    @OnClick(R.id.fab_add_activity_item)
+    public void addNewActivityItem(){
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.fragment_register_activity_item);
         dialog.setTitle("Adicionar nova atividade");
@@ -95,6 +65,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener{
         Button buttonCreate = (Button) dialog.findViewById(R.id.buttonCreate);
         Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
         final TextInputEditText inputTitle = (TextInputEditText) dialog.findViewById(R.id.input_name_activity_item);
+        final TextInputEditText inputDescription = (TextInputEditText) dialog.findViewById(R.id.input_name_activity_item);
+        final TextInputEditText inputInvestedTime = (TextInputEditText) dialog.findViewById(R.id.input_invested_time);
+        final EditText inputDateInvestedTime = (EditText) dialog.findViewById(R.id.input_date_invested_time);
 
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,13 +79,36 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener{
         buttonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String titleActivity = inputTitle.getText().toString();                
-                FirebaseController.getInstance().insertActivity(titleActivity, mDatabase, HomeActivity.this);
+                //Inserir validações
+                String titleActivity = inputTitle.getText().toString();
+                String descriptionActivity = inputDescription.getText().toString();
+                double time = Double.parseDouble(inputInvestedTime.getText().toString());
+                String createdAt = inputDateInvestedTime.getText().toString();
+
+                ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity);
+                InvestedTime investedTime = new InvestedTime(time);
+                investedTime.setCreatedAt(createdAt);
+
+                activityItem.addNewInvestedTime(investedTime);
+                FirebaseController.getInstance().insertActivity(new ActivityItem(titleActivity
+                        , descriptionActivity), mDatabase, HomeActivity.this);
                 dialog.dismiss();
             }
         });
 
         dialog.show();
+    }
+
+    private void retrieveAllActivities() {
+        recyclerView = (RecyclerView) findViewById(R.id.recycleview_activities);
+        adapter = new ActivityItemAdapter(this, activityItems);
+        recyclerView.setHasFixedSize(true);
+        FirebaseController.getInstance().retrieveAllActivities(mDatabase,activityItems, HomeActivity.this);
+
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(llm);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -126,7 +122,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener{
             Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
         } else {
             adapter.update(activityItems);
-            Log.d("ro", "assa");
         }
     }
 
@@ -138,4 +133,5 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener{
             Toast.makeText(this, "Atividade cadastrada com sucesso", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
