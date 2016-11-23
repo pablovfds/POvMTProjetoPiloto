@@ -2,6 +2,7 @@ package com.povmt.les.povmtprojetopiloto.Views;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -41,6 +42,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     private RecyclerView recyclerView;
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         // Initialize Firebase Auth and Database Reference
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
 
         activityItems = new ArrayList<>();
         retrieveAllActivities();
@@ -65,7 +68,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         Button buttonCreate = (Button) dialog.findViewById(R.id.buttonCreate);
         Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
         final TextInputEditText inputTitle = (TextInputEditText) dialog.findViewById(R.id.input_name_activity_item);
-        final TextInputEditText inputDescription = (TextInputEditText) dialog.findViewById(R.id.input_name_activity_item);
+        final TextInputEditText inputDescription = (TextInputEditText) dialog.findViewById(R.id.input_description_activity_item);
         final TextInputEditText inputInvestedTime = (TextInputEditText) dialog.findViewById(R.id.input_invested_time);
         final EditText inputDateInvestedTime = (EditText) dialog.findViewById(R.id.input_date_invested_time);
 
@@ -103,6 +106,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         recyclerView = (RecyclerView) findViewById(R.id.recycleview_activities);
         adapter = new ActivityItemAdapter(this, activityItems);
         recyclerView.setHasFixedSize(true);
+        progressDialog.show();
         FirebaseController.getInstance().retrieveAllActivities(mDatabase,activityItems, HomeActivity.this);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -118,6 +122,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
     @Override
     public void receiverActivity(int statusCode, List<ActivityItem> activityItems) {
+        progressDialog.dismiss();
         if (statusCode != 200){
             Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
         } else {
@@ -126,11 +131,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     }
 
     @Override
-    public void receiverActivity(int statusCode, boolean resp) {
+    public void receiverActivity(int statusCode, String resp) {
+        progressDialog.dismiss();
         if (statusCode != 200){
-            Toast.makeText(this, "Atividade não foi cadastrada", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, resp, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Atividade cadastrada com sucesso", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, resp, Toast.LENGTH_SHORT).show();
         }
     }
 
