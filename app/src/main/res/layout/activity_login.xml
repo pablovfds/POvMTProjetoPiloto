@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/cor"
-    tools:context="com.povmt.les.povmtprojetopiloto.activities.LoginActivity">
+    tools:context="com.povmt.les.povmtprojetopiloto.Views.LoginActivity">
 
     <TextView
         android:text="@string/app_name2"

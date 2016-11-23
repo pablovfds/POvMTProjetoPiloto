@@ -3,4 +3,8 @@
     <string name="app_name2">Pra Onde</string>
     <string name="app_name3">Vai Meu</string>
     <string name="app_name4">Tempo ?</string>
+    <string name="hint_activity_title">Titulo</string>
+    <string name="hint_activity_description">Descrição</string>
+    <string name="hint_activity_invested_time">Tempo investido</string>
+    <string name="hint_activity_date_invested_time">Data</string>
 </resources>

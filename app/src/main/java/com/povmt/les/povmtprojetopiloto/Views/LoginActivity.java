@@ -1,4 +1,4 @@
-package com.povmt.les.povmtprojetopiloto.activities;
+package com.povmt.les.povmtprojetopiloto.Views;
 
 import android.content.Intent;
 import android.os.Bundle;

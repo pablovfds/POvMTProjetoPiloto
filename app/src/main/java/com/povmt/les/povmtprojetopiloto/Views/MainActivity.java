@@ -1,4 +1,4 @@
-package com.povmt.les.povmtprojetopiloto.activities;
+package com.povmt.les.povmtprojetopiloto.Views;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
