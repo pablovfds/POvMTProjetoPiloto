@@ -1,9 +1,14 @@
 package com.povmt.les.povmtprojetopiloto.Models;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
+
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,6 +88,31 @@ public class ActivityItem implements Serializable {
 
     public void setInvestedTimeList(List<InvestedTime> investedTimeList) {
         this.investedTimeList = investedTimeList;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public boolean isActivityWeek(){
+        
+        for (InvestedTime investedTime: investedTimeList) {
+
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(sdf.parse(updatedAt));
+
+                if (cal.getWeekYear() == Calendar.getInstance().getWeekYear()){
+                    System.out.println("TRUE");
+                    return true;
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+        return false;
     }
 
     @Exclude

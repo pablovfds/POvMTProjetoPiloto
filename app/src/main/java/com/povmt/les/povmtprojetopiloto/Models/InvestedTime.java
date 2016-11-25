@@ -8,8 +8,10 @@ public class InvestedTime {
     private double time;
     private String createdAt;
     private String activityItemId;
+    private Calendar date;
 
     public InvestedTime() {
+        this.date = Calendar.getInstance();
     }
 
     public InvestedTime(double time) {
@@ -18,6 +20,7 @@ public class InvestedTime {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         dateFormat.setCalendar(cal);
         this.createdAt = dateFormat.format(cal.getTime());
+        this.date = Calendar.getInstance();
     }
 
     public double getTime() {
@@ -26,6 +29,14 @@ public class InvestedTime {
 
     public void setTime(double time) {
         this.time = time;
+    }
+
+    public Calendar getDate() {
+        return date;
+    }
+
+    public void setDate(Calendar date) {
+        this.date = date;
     }
 
     public String getActivityItemId() {

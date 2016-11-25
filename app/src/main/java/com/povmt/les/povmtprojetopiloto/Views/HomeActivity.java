@@ -3,7 +3,9 @@ package com.povmt.les.povmtprojetopiloto.Views;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,8 +45,10 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
     private ProgressDialog progressDialog;
+    private List<ActivityItem> activityItemsWeek;
 
     @Override
+    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -57,6 +61,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         activityItems = new ArrayList<>();
         retrieveAllActivities();
+
+        activityItemsWeek = new ArrayList<>();
+        itensDaSemana();
     }
 
     @OnClick(R.id.fab_add_activity_item)
@@ -139,5 +146,21 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
             Toast.makeText(this, resp, Toast.LENGTH_SHORT).show();
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void itensDaSemana(){
+
+        for (ActivityItem activityItem : activityItems) {
+
+            if(activityItem.isActivityWeek()){
+                activityItemsWeek.add(activityItem);
+            }
+
+        }
+
+//        System.out.println(activityItemsWeek.get(0).getTitle());
+
+    }
+
 
 }
