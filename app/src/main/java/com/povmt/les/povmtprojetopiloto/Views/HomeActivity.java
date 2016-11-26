@@ -1,11 +1,8 @@
 package com.povmt.les.povmtprojetopiloto.Views;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -26,11 +22,8 @@ import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
 import com.povmt.les.povmtprojetopiloto.R;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,7 +41,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     private List<ActivityItem> activityItemsWeek;
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -63,7 +55,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         retrieveAllActivities();
 
         activityItemsWeek = new ArrayList<>();
-        itensDaSemana();
     }
 
     @OnClick(R.id.fab_add_activity_item)
@@ -99,9 +90,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
                 InvestedTime investedTime = new InvestedTime(time);
                 investedTime.setCreatedAt(createdAt);
 
+                activityItem.setUpdatedAt(createdAt);
+                activityItem.setCreatedAt(createdAt);
+
                 activityItem.addNewInvestedTime(investedTime);
-                FirebaseController.getInstance().insertActivity(new ActivityItem(titleActivity
-                        , descriptionActivity), mDatabase, HomeActivity.this);
+                FirebaseController.getInstance().insertActivity(activityItem, mDatabase, HomeActivity.this);
                 dialog.dismiss();
             }
         });
@@ -123,7 +116,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     }
 
     @Override
-    public void receiverActivity(int statusCode, ActivityItem activityItem) {
+    public void receiverActivity(int statusCode, ActivityItem activityItem, String resp) {
 
     }
 
@@ -134,6 +127,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
             Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
         } else {
             adapter.update(activityItems);
+            itensDaSemana();
         }
     }
 
@@ -147,19 +141,18 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void itensDaSemana(){
-
         for (ActivityItem activityItem : activityItems) {
-
             if(activityItem.isActivityWeek()){
-                activityItemsWeek.add(activityItem);
+                if(!activityItemsWeek.contains(activityItem)){
+                    activityItemsWeek.add(activityItem);
+                }
             }
-
         }
 
-//        System.out.println(activityItemsWeek.get(0).getTitle());
-
+        for (ActivityItem item: activityItemsWeek){
+            Log.d("item ", item.getTitle());
+        }
     }
 
 

@@ -18,10 +18,6 @@ import com.povmt.les.povmtprojetopiloto.Views.HomeActivity;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by PABLOVICTOR on 20/11/2016.
- */
-
 public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapter.ActivityItemViewHolder>{
 
     private final LayoutInflater layoutInflater;

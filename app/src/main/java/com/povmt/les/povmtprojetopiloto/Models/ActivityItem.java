@@ -1,9 +1,5 @@
 package com.povmt.les.povmtprojetopiloto.Models;
 
-import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.util.Log;
-
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -12,7 +8,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +30,7 @@ public class ActivityItem implements Serializable {
         this.title = title;
         this.description = description;
         Calendar cal = new GregorianCalendar();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setCalendar(cal);
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
@@ -90,27 +85,23 @@ public class ActivityItem implements Serializable {
         this.investedTimeList = investedTimeList;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Exclude
     public boolean isActivityWeek(){
-        
-        for (InvestedTime investedTime: investedTimeList) {
 
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(sdf.parse(updatedAt));
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sdf.parse(updatedAt));
 
-                if (cal.getWeekYear() == Calendar.getInstance().getWeekYear()){
-                    System.out.println("TRUE");
-                    return true;
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
+            if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)){
+                System.out.println("TRUE");
+                return true;
             }
 
-
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+
 
         return false;
     }
