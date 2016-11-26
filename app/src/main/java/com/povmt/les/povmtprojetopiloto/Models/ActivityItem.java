@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class ActivityItem implements Serializable {
+public class ActivityItem implements Serializable, Comparable<ActivityItem> {
 
     private List<InvestedTime> investedTimeList;
     private String updatedAt;
@@ -132,5 +132,17 @@ public class ActivityItem implements Serializable {
     @Override
     public String toString() {
         return this.getTitle();
+    }
+
+    @Override
+    public int compareTo(ActivityItem outraActivityItem) {
+
+        if(this.getSumOfTimeInvested() < outraActivityItem.getSumOfTimeInvested()){
+            return -1;
+        }else if(this.getSumOfTimeInvested() > outraActivityItem.getSumOfTimeInvested()){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 }

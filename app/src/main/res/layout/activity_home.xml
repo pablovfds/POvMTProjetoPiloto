@@ -26,4 +26,5 @@
         app:layout_anchorGravity="bottom|right|end"
         android:id="@+id/fab_add_activity_item"/>
 
+
 </android.support.design.widget.CoordinatorLayout>

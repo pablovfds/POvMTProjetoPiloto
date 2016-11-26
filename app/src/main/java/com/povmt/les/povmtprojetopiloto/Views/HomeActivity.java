@@ -23,6 +23,7 @@ import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
 import com.povmt.les.povmtprojetopiloto.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -55,6 +56,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         retrieveAllActivities();
 
         activityItemsWeek = new ArrayList<>();
+
+        ordenandoListaItensSemana();
+
     }
 
     @OnClick(R.id.fab_add_activity_item)
@@ -152,7 +156,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         for (ActivityItem item: activityItemsWeek){
             Log.d("item ", item.getTitle());
+            Log.d("item ", String.valueOf(item.getSumOfTimeInvested()));
         }
+    }
+
+    private void ordenandoListaItensSemana(){
+
+        Collections.sort(activityItemsWeek);
+
     }
 
 
