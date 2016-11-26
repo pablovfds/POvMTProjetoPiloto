@@ -26,5 +26,10 @@
         app:layout_anchorGravity="bottom|right|end"
         android:id="@+id/fab_add_activity_item"/>
 
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chart1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
 
 </android.support.design.widget.CoordinatorLayout>

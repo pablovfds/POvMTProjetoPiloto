@@ -30,6 +30,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
+
+
 public class HomeActivity extends AppCompatActivity implements ActivityListener {
 
     @BindView(R.id.recycleview_activities) RecyclerView recyclerViewActivities;
@@ -40,6 +48,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     private ActivityItemAdapter adapter;
     private ProgressDialog progressDialog;
     private List<ActivityItem> activityItemsWeek;
+    BarChart chart ;
+    ArrayList<BarEntry> BARENTRY ;
+    ArrayList<String> BarEntryLabels ;
+    BarDataSet Bardataset ;
+    BarData BARDATA ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +70,16 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         activityItemsWeek = new ArrayList<>();
 
-        ordenandoListaItensSemana();
+
+
+
+        //Declaração das paradas pra gerar o gráfico
+        chart = (BarChart) findViewById(R.id.chart1);
+        BARENTRY = new ArrayList<>();
+        BarEntryLabels = new ArrayList<String>();
+
+        //Aqui acontece a mágica da plotagem do gráfico
+        sortListWeek();
 
     }
 
@@ -131,7 +153,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
             Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
         } else {
             adapter.update(activityItems);
-            itensDaSemana();
+            itensOfWeekAndGraph();
         }
     }
 
@@ -145,14 +167,46 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         }
     }
 
-    private void itensDaSemana(){
+    /**
+     * Esse código está protegido pelas Leis de Deus, pq só ele sabe como isso ta funcionando apenas desse jeito.
+     * Ass: Lúcio
+     */
+    private void itensOfWeekAndGraph(){
+
+        int cont = 0; // esse contador aqui é a posição do elemento na lista, não vai ser alterado depois
+        int tempo = 10; // esse tempo aqui é arbitrário, só para poder a barra ter um tamanho e aparecer
+        // Quando Pablo trouxer do Firebase o tempo investido tiramos isso.
+        // O método getSumOfTimeInvested() está retornando 0 por enquanto
+
+        float tempoTotal = 0;
+
+
         for (ActivityItem activityItem : activityItems) {
             if(activityItem.isActivityWeek()){
                 if(!activityItemsWeek.contains(activityItem)){
                     activityItemsWeek.add(activityItem);
+
+
+                    BarEntryLabels.add(activityItem.getTitle());
+                    BARENTRY.add(new BarEntry(activityItem.getSumOfTimeInvested() + tempo, cont));
+                    tempoTotal = activityItem.getSumOfTimeInvested() + tempo;
                 }
             }
+
+            tempo --;
+            cont ++;
         }
+
+
+        Bardataset = new BarDataSet(BARENTRY, "Projects");
+
+        BARDATA = new BarData(BarEntryLabels, Bardataset);
+
+        Bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
+
+        chart.setData(BARDATA);
+
+        chart.animateY(3000);
 
         for (ActivityItem item: activityItemsWeek){
             Log.d("item ", item.getTitle());
@@ -160,7 +214,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         }
     }
 
-    private void ordenandoListaItensSemana(){
+    private void sortListWeek(){
 
         Collections.sort(activityItemsWeek);
 
