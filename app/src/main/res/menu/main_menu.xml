@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_show_graph"
+        android:icon="@drawable/ic_bar_graph"
+        android:title="Show graph"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_show_activities"
+        android:icon="@drawable/ic_activities_list"
+        android:title="Show activities list"
+        app:showAsAction="always"/>
+</menu>

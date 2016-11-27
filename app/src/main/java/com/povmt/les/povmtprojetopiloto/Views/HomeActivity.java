@@ -3,14 +3,20 @@ package com.povmt.les.povmtprojetopiloto.Views;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -53,6 +59,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     ArrayList<String> BarEntryLabels ;
     BarDataSet Bardataset ;
     BarData BARDATA ;
+    private LinearLayout graphLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +77,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         activityItemsWeek = new ArrayList<>();
 
-
-
-
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
         BARENTRY = new ArrayList<>();
@@ -80,6 +84,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
+        graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
+        graphLayout.setVisibility(View.INVISIBLE);
 
     }
 
@@ -133,7 +139,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         adapter = new ActivityItemAdapter(this, activityItems);
         recyclerView.setHasFixedSize(true);
         progressDialog.show();
-        FirebaseController.getInstance().retrieveAllActivities(mDatabase,activityItems, HomeActivity.this);
+        FirebaseController.getInstance().retrieveAllActivities(mDatabase, activityItems, HomeActivity.this);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -220,5 +226,33 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add_activity_item);
+        TextView ti_total = (TextView) findViewById(R.id.tv_total_time_invested);
+
+        switch (item.getItemId()) {
+            case R.id.action_show_graph:
+                graphLayout.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.INVISIBLE);
+                ti_total.setText("Total de tempo investido: ");
+                break;
+            case R.id.action_show_activities:
+                graphLayout.setVisibility(View.INVISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.VISIBLE);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
