@@ -4,4 +4,7 @@
     <string name="hint_activity_description">Descrição</string>
     <string name="hint_activity_invested_time">Tempo investido</string>
     <string name="hint_activity_date_invested_time">Data</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

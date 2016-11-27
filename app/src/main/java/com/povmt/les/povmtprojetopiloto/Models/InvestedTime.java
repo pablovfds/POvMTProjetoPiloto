@@ -1,9 +1,5 @@
 package com.povmt.les.povmtprojetopiloto.Models;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 public class InvestedTime {
     private double time;
     private String createdAt;
@@ -12,12 +8,9 @@ public class InvestedTime {
     public InvestedTime() {
     }
 
-    public InvestedTime(double time) {
+    public InvestedTime(double time, String createdAt) {
         this.time = time;
-        Calendar cal = new GregorianCalendar();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormat.setCalendar(cal);
-        this.createdAt = dateFormat.format(cal.getTime());
+        this.createdAt = createdAt;
     }
 
     public double getTime() {
@@ -26,14 +19,6 @@ public class InvestedTime {
 
     public void setTime(double time) {
         this.time = time;
-    }
-
-    public String getActivityItemId() {
-        return activityItemId;
-    }
-
-    public void setActivityItemId(String activityItemId) {
-        this.activityItemId = activityItemId;
     }
 
     public String getCreatedAt() {

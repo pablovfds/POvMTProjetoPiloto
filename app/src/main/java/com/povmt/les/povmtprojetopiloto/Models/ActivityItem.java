@@ -30,7 +30,7 @@ public class ActivityItem implements Serializable {
         this.title = title;
         this.description = description;
         Calendar cal = new GregorianCalendar();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setCalendar(cal);
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
@@ -105,6 +105,9 @@ public class ActivityItem implements Serializable {
         HashMap<String, Object> result = new HashMap<>();
         result.put("uid", uid);
         result.put("title", title);
+        result.put("description", description);
+        result.put("createdAt", createdAt);
+        result.put("updatedAt", updatedAt);
         return result;
     }
 

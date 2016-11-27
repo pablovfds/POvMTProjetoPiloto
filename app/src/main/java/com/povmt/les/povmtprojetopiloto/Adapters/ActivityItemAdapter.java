@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,8 @@ import android.widget.TextView;
 
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.R;
-import com.povmt.les.povmtprojetopiloto.Views.ActivityItemDetailsActivity;
-import com.povmt.les.povmtprojetopiloto.Views.HomeActivity;
+import com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
