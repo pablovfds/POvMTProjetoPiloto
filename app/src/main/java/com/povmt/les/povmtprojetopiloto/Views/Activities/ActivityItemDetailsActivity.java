@@ -15,7 +15,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ActivityItemDetailsActivity extends AppCompatActivity {
+public class ActivityItemDetailsActivity extends AppCompatActivity implements RegisterNewTiDialogFragment.OnCompleteListener{
 
     @BindView(R.id.textViewTitle) TextView textViewTitle;
 
@@ -24,6 +24,8 @@ public class ActivityItemDetailsActivity extends AppCompatActivity {
     @BindView(R.id.textViewCreatedAt) TextView textViewCreatedAt;
 
     @BindView(R.id.textViewUpdatedAt) TextView textViewUpdatedAt;
+
+    @BindView(R.id.textViewTotalTi) TextView textViewTotalTi;
 
     private ActivityItem activityItem;
 
@@ -39,11 +41,8 @@ public class ActivityItemDetailsActivity extends AppCompatActivity {
         if (getIntent().getExtras() != null) {
             Bundle extras = getIntent().getExtras();
             activityItem = (ActivityItem) extras.get("activityItem");
-            textViewTitle.setText(activityItem.getTitle());
             getSupportActionBar().setTitle(activityItem.getTitle());
-            textViewDescription.setText(activityItem.getDescription());
-            textViewCreatedAt.setText(activityItem.getCreatedAt());
-            textViewUpdatedAt.setText(activityItem.getUpdatedAt());
+            setTextViews(activityItem);
             progressDialog.dismiss();
         }
     }
@@ -54,5 +53,21 @@ public class ActivityItemDetailsActivity extends AppCompatActivity {
         RegisterNewTiDialogFragment registerTiDialog = RegisterNewTiDialogFragment.newInstance(activityItem);
         registerTiDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
         registerTiDialog.show(ft, "registerTiDialog");
+    }
+
+
+    @Override
+    public void onComplete(ActivityItem item) {
+        this.activityItem = item;
+        setTextViews(activityItem);
+    }
+
+    private void setTextViews(ActivityItem activityItem){
+        textViewTitle.setText(activityItem.getTitle());
+        textViewDescription.setText(activityItem.getDescription());
+        textViewCreatedAt.setText(activityItem.getCreatedAt());
+        textViewUpdatedAt.setText(activityItem.getUpdatedAt());
+        String totalTi = activityItem.getTotalInvestedTime() + " Hora(s)";
+        textViewTotalTi.setText(totalTi);
     }
 }

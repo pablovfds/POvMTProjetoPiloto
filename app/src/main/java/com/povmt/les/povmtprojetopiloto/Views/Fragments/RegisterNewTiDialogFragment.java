@@ -1,14 +1,13 @@
 package com.povmt.les.povmtprojetopiloto.Views.Fragments;
 
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
-import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
 
 import java.text.SimpleDateFormat;
@@ -44,6 +43,8 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     private DatabaseReference mDatabase;
     private Calendar myCalendar;
     private DatePickerDialog.OnDateSetListener date;
+
+    private OnCompleteListener mListener;
 
     public static RegisterNewTiDialogFragment newInstance(ActivityItem activityItem) {
 
@@ -67,12 +68,6 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
         // Required empty public constructor
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return super.onCreateDialog(savedInstanceState);
-    }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -89,13 +84,8 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-        getDialog().setTitle("Registrar novo Ti");
-
         View view = inflater.inflate(R.layout.fragment_register_new_ti_dialog, container, false);
         ButterKnife.bind(this, view);
-
-        getDialog().setTitle("Registrar novo Ti");
 
         inputDateTi.setInputType(InputType.TYPE_NULL);
 
@@ -125,18 +115,27 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     @OnClick(R.id.buttonCreate)
     public void createNewTiDialog(){
 
-        double time = Double.parseDouble(inputTimeTi.getText().toString());
+        inputTimeTi.setError(null);
+        inputDateTi.setError(null);
+        int investedTime = Integer.valueOf(inputTimeTi.getText().toString());
         String createdAt = inputDateTi.getText().toString();
 
-        InvestedTime investedTime = new InvestedTime(time, createdAt);
+        if(investedTime <= 0.0){
+            inputTimeTi.setError("Insira um tempo investido válido.");
+        } else if (createdAt.isEmpty()){
+            inputDateTi.setError("Insira uma data para o tempo investido");
+        } else {
+            InvestedTimeItem tiItem = new InvestedTimeItem(investedTime, createdAt);
 
-        Calendar cal = new GregorianCalendar();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        dateFormat.setCalendar(cal);
-        activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
+            Calendar cal = new GregorianCalendar();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            dateFormat.setCalendar(cal);
+            activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
+            activityItem.addNewInvestedTime(tiItem);
 
-        FirebaseController.getInstance()
-                .insertTi(activityItem, investedTime, mDatabase, this);
+            FirebaseController.getInstance()
+                    .insertTi(activityItem, tiItem, mDatabase, this);
+        }
     }
 
     @OnClick(R.id.input_date_ti)
@@ -153,8 +152,24 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
             Toast.makeText(getActivity(), resp, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getActivity(), resp, Toast.LENGTH_SHORT).show();
+            this.mListener.onComplete(activityItem);
         }
 
-        this.dismiss();
+        this.dismissDialog();
+    }
+
+    public static interface OnCompleteListener {
+        public abstract void onComplete(ActivityItem item);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            this.mListener = (OnCompleteListener) activity;
+        }
+        catch (final ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+        }
     }
 }

@@ -26,7 +26,7 @@
         android:text="Tempo investido:"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewTi"
+        android:id="@+id/textViewTiTotal"
         android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textViewTiCreatedAt"
-            android:layout_below="@+id/textViewTi"
+            android:layout_below="@+id/textViewTiTotal"
             android:layout_alignParentStart="true" />
 
     </RelativeLayout>

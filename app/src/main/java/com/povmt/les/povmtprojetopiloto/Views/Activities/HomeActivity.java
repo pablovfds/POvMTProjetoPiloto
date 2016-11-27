@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,8 +18,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Adapters.ActivityItemAdapter;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
+import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.R;
+import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
+import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewTiDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,49 +48,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         ButterKnife.bind(this);
 
         // Initialize Firebase Auth and Database Reference
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("activities");
         progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
 
         activityItems = new ArrayList<>();
-        retrieveAllActivities();
-    }
 
-    @OnClick(R.id.fab_add_activity_item)
-    public void addNewActivityItem(){
-        final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.fragment_register_activity_item);
-        dialog.setTitle("Adicionar nova atividade");
-
-        Button buttonCreate = (Button) dialog.findViewById(R.id.buttonCreate);
-        Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
-        final TextInputEditText inputTitle = (TextInputEditText) dialog.findViewById(R.id.input_name_activity_item);
-        final TextInputEditText inputDescription = (TextInputEditText) dialog.findViewById(R.id.input_description_activity_item);
-
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        buttonCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Inserir validações
-                String titleActivity = inputTitle.getText().toString();
-                String descriptionActivity = inputDescription.getText().toString();
-
-                ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity);
-
-                FirebaseController.getInstance().insertActivity(activityItem, mDatabase, HomeActivity.this);
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void retrieveAllActivities() {
         adapter = new ActivityItemAdapter(this, activityItems);
         recyclerViewActivities.setHasFixedSize(true);
         progressDialog.show();
@@ -95,6 +62,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerViewActivities.setLayoutManager(llm);
         recyclerViewActivities.setAdapter(adapter);
+    }
+
+    @OnClick(R.id.fab_add_activity_item)
+    public void addNewActivityItem(){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        RegisterNewActivityDialogFragment registerActivityDialog = new RegisterNewActivityDialogFragment();
+        registerActivityDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+        registerActivityDialog.show(ft, "registerActivityDialog");
     }
 
     @Override
@@ -114,12 +89,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
     @Override
     public void receiverActivity(int statusCode, String resp) {
-        progressDialog.dismiss();
-        if (statusCode != 200){
-            Toast.makeText(this, resp, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, resp, Toast.LENGTH_SHORT).show();
-        }
+
     }
 
 }

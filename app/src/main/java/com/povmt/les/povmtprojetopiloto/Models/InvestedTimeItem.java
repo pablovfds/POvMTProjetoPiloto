@@ -1,14 +1,13 @@
 package com.povmt.les.povmtprojetopiloto.Models;
 
-public class InvestedTime {
+public class InvestedTimeItem {
     private double time;
     private String createdAt;
-    private String activityItemId;
 
-    public InvestedTime() {
+    public InvestedTimeItem() {
     }
 
-    public InvestedTime(double time, String createdAt) {
+    public InvestedTimeItem(double time, String createdAt) {
         this.time = time;
         this.createdAt = createdAt;
     }
