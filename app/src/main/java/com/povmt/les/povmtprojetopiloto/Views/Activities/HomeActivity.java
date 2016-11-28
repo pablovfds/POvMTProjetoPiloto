@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,6 +59,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        ButterKnife.bind(this);
+
         getSupportActionBar().setTitle("Ativiades Recentes");
 
         // Initialize Firebase Auth and Database Reference
@@ -97,6 +100,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
     @OnClick(R.id.fab_add_activity_item)
     public void addNewActivityItem(){
+        Log.d("eor", "sas");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         RegisterNewActivityDialogFragment registerActivityDialog = new RegisterNewActivityDialogFragment();
         registerActivityDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
