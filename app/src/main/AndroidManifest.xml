@@ -15,9 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Views.MainActivity" />
-        <activity android:name=".Views.LoginActivity" />
+        <activity android:name=".Views.HomeActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
         <activity
-            android:name=".Views.HomeActivity"
+            android:name=".Views.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar"
             >
             <intent-filter>
