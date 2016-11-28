@@ -60,6 +60,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     BarDataSet Bardataset ;
     BarData BARDATA ;
     private LinearLayout graphLayout;
+    private float tempoTotal = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,17 +117,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
                 //Inserir validações
                 String titleActivity = inputTitle.getText().toString();
                 String descriptionActivity = inputDescription.getText().toString();
-                double time = Double.parseDouble(inputInvestedTime.getText().toString());
-                String createdAt = inputDateInvestedTime.getText().toString();
 
                 ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity);
-                InvestedTime investedTime = new InvestedTime(time);
-                investedTime.setCreatedAt(createdAt);
 
-                activityItem.setUpdatedAt(createdAt);
-                activityItem.setCreatedAt(createdAt);
-
-                activityItem.addNewInvestedTime(investedTime);
                 FirebaseController.getInstance().insertActivity(activityItem, mDatabase, HomeActivity.this);
                 dialog.dismiss();
             }
@@ -184,9 +178,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         // Quando Pablo trouxer do Firebase o tempo investido tiramos isso.
         // O método getSumOfTimeInvested() está retornando 0 por enquanto
 
-        float tempoTotal = 0;
-
-
         for (ActivityItem activityItem : activityItems) {
             if(activityItem.isActivityWeek()){
                 if(!activityItemsWeek.contains(activityItem)){
@@ -194,17 +185,16 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
 
                     BarEntryLabels.add(activityItem.getTitle());
-                    BARENTRY.add(new BarEntry(activityItem.getSumOfTimeInvested() + tempo, cont));
-                    tempoTotal = activityItem.getSumOfTimeInvested() + tempo;
+                    BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTime(), cont));
+                    tempoTotal += activityItem.getTotalInvestedTime();
                 }
             }
 
-            tempo --;
             cont ++;
         }
 
 
-        Bardataset = new BarDataSet(BARENTRY, "Projects");
+        Bardataset = new BarDataSet(BARENTRY, "Atividades");
 
         BARDATA = new BarData(BarEntryLabels, Bardataset);
 
@@ -216,14 +206,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         for (ActivityItem item: activityItemsWeek){
             Log.d("item ", item.getTitle());
-            Log.d("item ", String.valueOf(item.getSumOfTimeInvested()));
+            Log.d("item ", String.valueOf(item.getTotalInvestedTime()));
         }
     }
 
     private void sortListWeek(){
-
         Collections.sort(activityItemsWeek);
-
     }
 
     @Override
@@ -245,7 +233,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
                 graphLayout.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.INVISIBLE);
                 fab.setVisibility(View.INVISIBLE);
-                ti_total.setText("Total de tempo investido: ");
+                ti_total.setText("Total de tempo investido: " + tempoTotal);
                 break;
             case R.id.action_show_activities:
                 graphLayout.setVisibility(View.INVISIBLE);
