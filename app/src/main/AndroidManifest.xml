@@ -28,10 +28,6 @@
         </activity>
         <activity android:name=".Views.ActivityItemDetailsActivity" />
         <activity android:name=".Views.GraphActivity" />
-        <activity
-            android:name=".Views.NavigationDrawerActivity"
-            android:label="@string/title_activity_navigation_drawer"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
