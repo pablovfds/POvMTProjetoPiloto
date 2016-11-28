@@ -7,15 +7,15 @@
         <item
             android:id="@+id/nav_show_activities"
             android:icon="@drawable/ic_activities_list"
-            android:title="My Activities" />
+            android:title="Minhas atividades" />
         <item
             android:id="@+id/nav_show_graph"
             android:icon="@drawable/ic_bar_graph"
-            android:title="Weekly report" />
+            android:title="Relatório semanal" />
         <item
             android:id="@+id/nav_general_report"
             android:icon="@drawable/ic_line_chart"
-            android:title="General report"/>
+            android:title="Relatório geral"/>
 
     </group>
 
@@ -25,7 +25,7 @@
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_logout"
-            android:title="Logout"/>
+            android:title="Sair"/>
 
     </group>
 

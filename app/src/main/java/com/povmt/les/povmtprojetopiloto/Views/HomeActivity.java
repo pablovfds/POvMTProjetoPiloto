@@ -264,7 +264,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         }  else if (id == R.id.nav_general_report) {
 
         } else if (id == R.id.nav_logout) {
-
+            Log.v("LOGOUT", "Saindo da aplicação");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
