@@ -1,7 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="350dp"
-    android:layout_height="330dp">
+    android:layout_width="match_parent"
+    android:layout_height="330dp"
+    android:layout_margin="@dimen/activity_horizontal_margin">
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"

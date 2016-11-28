@@ -60,6 +60,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     BarDataSet Bardataset ;
     BarData BARDATA ;
     private LinearLayout graphLayout;
+    float tempoTotal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +185,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         // Quando Pablo trouxer do Firebase o tempo investido tiramos isso.
         // O método getSumOfTimeInvested() está retornando 0 por enquanto
 
-        float tempoTotal = 0;
 
 
         for (ActivityItem activityItem : activityItems) {
@@ -192,21 +192,20 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
                 if(!activityItemsWeek.contains(activityItem)){
                     activityItemsWeek.add(activityItem);
 
-
                     BarEntryLabels.add(activityItem.getTitle());
                     BARENTRY.add(new BarEntry(activityItem.getSumOfTimeInvested() + tempo, cont));
-                    tempoTotal = activityItem.getSumOfTimeInvested() + tempo;
+                Log.e("TIME", tempoTotal + " " + activityItem.getSumOfTimeInvested()    );
+                    tempoTotal += activityItem.getSumOfTimeInvested();
                 }
             }
-
             tempo --;
             cont ++;
         }
 
-
         Bardataset = new BarDataSet(BARENTRY, "Projects");
 
         BARDATA = new BarData(BarEntryLabels, Bardataset);
+
 
         Bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
 
@@ -215,13 +214,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         chart.animateY(3000);
 
         for (ActivityItem item: activityItemsWeek){
-            Log.d("item ", item.getTitle());
-            Log.d("item ", String.valueOf(item.getSumOfTimeInvested()));
+            Log.e("item ", item.getTitle());
+            Log.e("item ", String.valueOf(item.getSumOfTimeInvested()));
         }
     }
 
     private void sortListWeek(){
-
         Collections.sort(activityItemsWeek);
 
     }
@@ -231,7 +229,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -245,7 +242,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
                 graphLayout.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.INVISIBLE);
                 fab.setVisibility(View.INVISIBLE);
-                ti_total.setText("Total de tempo investido: ");
+                ti_total.setText("Total de tempo investido: " + tempoTotal);
                 break;
             case R.id.action_show_activities:
                 graphLayout.setVisibility(View.INVISIBLE);
