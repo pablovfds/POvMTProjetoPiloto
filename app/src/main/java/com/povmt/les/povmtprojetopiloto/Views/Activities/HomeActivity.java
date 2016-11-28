@@ -78,7 +78,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
         graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
-        graphLayout.setVisibility(View.INVISIBLE);
+        graphLayout.setVisibility(View.GONE);
     }
 
     private void setRecycleViews(){
@@ -193,7 +193,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
                 ti_total.setText("Total de tempo investido: " + tempoTotal);
                 break;
             case R.id.action_show_activities:
-                graphLayout.setVisibility(View.INVISIBLE);
+                graphLayout.setVisibility(View.GONE);
                 recyclerViewActivities.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.VISIBLE);
                 break;
