@@ -5,6 +5,9 @@
     <string name="app_name4">Tempo ?</string>
     <string name="hint_activity_title">Titulo</string>
     <string name="hint_activity_description">Descrição</string>
-    <string name="hint_activity_invested_time">Tempo investido</string>
+    <string name="hint_activity_invested_time">Tempo investido (em Horas)</string>
     <string name="hint_activity_date_invested_time">Data</string>
+
+    <string name="prompt_card_update_at">Ultima atualização:</string>
+    <string name="prompt_card_title">Titulo:</string>
 </resources>

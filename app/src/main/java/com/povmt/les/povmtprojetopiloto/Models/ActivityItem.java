@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +15,12 @@ import java.util.Map;
 @IgnoreExtraProperties
 public class ActivityItem implements Serializable {
 
-    private List<InvestedTime> investedTimeList;
     private String updatedAt;
     private String createdAt;
     private String description;
     private String title;
     private String uid;
+    private int totalInvestedTime;
 
     public ActivityItem() {
     }
@@ -30,11 +29,11 @@ public class ActivityItem implements Serializable {
         this.title = title;
         this.description = description;
         Calendar cal = new GregorianCalendar();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setCalendar(cal);
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
-        this.investedTimeList = new ArrayList<>();
+        this.totalInvestedTime = 0;
     }
 
     public String getUid() {
@@ -77,27 +76,17 @@ public class ActivityItem implements Serializable {
         this.description = description;
     }
 
-    public List<InvestedTime> getInvestedTimeList() {
-        return investedTimeList;
+    public int getTotalInvestedTime() {
+        return totalInvestedTime;
     }
 
-    public void setInvestedTimeList(List<InvestedTime> investedTimeList) {
-        this.investedTimeList = investedTimeList;
-    }
-
-    @Exclude
-    public void addNewInvestedTime(InvestedTime investedTime){
-        this.investedTimeList.add(investedTime);
+    public void setTotalInvestedTime(int totalInvestedTime) {
+        this.totalInvestedTime = totalInvestedTime;
     }
 
     @Exclude
-    public float getSumOfTimeInvested(){
-        float sum = 0;
-
-        for (InvestedTime investedTime: investedTimeList) {
-            sum += investedTime.getTime();
-        }
-        return sum;
+    public void addNewInvestedTime(InvestedTimeItem  investedTimeItem){
+        totalInvestedTime += investedTimeItem.getTime();
     }
 
     @Exclude
@@ -105,6 +94,10 @@ public class ActivityItem implements Serializable {
         HashMap<String, Object> result = new HashMap<>();
         result.put("uid", uid);
         result.put("title", title);
+        result.put("description", description);
+        result.put("createdAt", createdAt);
+        result.put("updatedAt", updatedAt);
+        result.put("sumInvestedTime", totalInvestedTime);
         return result;
     }
 
