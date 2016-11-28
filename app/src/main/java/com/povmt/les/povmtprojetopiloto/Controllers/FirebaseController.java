@@ -77,7 +77,6 @@ public class FirebaseController {
                     activityItem.setTotalInvestedTime(totalInvestedTime);
 
                     if (auxItem == null) {
-
                         activityItems.add(activityItem);
                     } else {
                         activityItems.remove(auxItem);

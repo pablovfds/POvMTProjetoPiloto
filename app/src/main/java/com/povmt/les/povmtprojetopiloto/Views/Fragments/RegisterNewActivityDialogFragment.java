@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.R;
-import com.povmt.les.povmtprojetopiloto.Views.Activities.HomeActivity;
 
 import java.util.List;
 

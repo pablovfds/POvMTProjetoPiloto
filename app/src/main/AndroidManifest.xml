@@ -16,9 +16,10 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Views.Activities.LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
-        <activity android:name=".Views.Activities.MainActivity"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Views.Activities.MainActivity" />
+        <activity android:name=".Views.Activities.ActivityItemDetailsActivity" />
+
         <activity android:name=".Views.Activities.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Views.Activities.ActivityItemDetailsActivity"></activity>
     </application>
 
 </manifest>
