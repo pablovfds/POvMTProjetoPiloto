@@ -24,8 +24,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private String uid;
     private int totalInvestedTime;
 
-    public ActivityItem() {
-    }
+    public ActivityItem() {}
 
     public ActivityItem(String title, String description) {
         this.title = title;
@@ -111,8 +110,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-
         return false;
     }
 

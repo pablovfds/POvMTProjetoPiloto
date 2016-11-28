@@ -34,7 +34,6 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
     public ActivityItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = layoutInflater.inflate(R.layout.item_card_activity_item, parent, false);
-
         return new ActivityItemViewHolder(view);
     }
 

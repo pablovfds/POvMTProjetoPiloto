@@ -7,4 +7,9 @@
     <string name="hint_activity_description">Descrição</string>
     <string name="hint_activity_invested_time">Tempo investido</string>
     <string name="hint_activity_date_invested_time">Data</string>
+    <string name="total_time">Tempo total investido nesta semana</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
+    <string name="action_settings">Settings</string>
 </resources>

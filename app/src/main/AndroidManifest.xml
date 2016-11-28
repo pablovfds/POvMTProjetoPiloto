@@ -18,7 +18,8 @@
         <activity android:name=".Views.LoginActivity" />
         <activity
             android:name=".Views.HomeActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.NoActionBar"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,7 +27,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".Views.ActivityItemDetailsActivity" />
-        <activity android:name=".Views.GraphActivity"></activity>
+        <activity android:name=".Views.GraphActivity" />
+        <activity
+            android:name=".Views.NavigationDrawerActivity"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
