@@ -22,6 +22,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private String description;
     private String title;
     private String uid;
+    private int totalInvestedTime;
 
     public ActivityItem() {
     }
@@ -35,6 +36,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
         this.investedTimeList = new ArrayList<>();
+        this.totalInvestedTime = 0;
     }
 
     public String getUid() {
@@ -85,6 +87,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.investedTimeList = investedTimeList;
     }
 
+    public int getTotalInvestedTime() {
+        return totalInvestedTime;
+    }
+
+    public void setTotalInvestedTime(int totalInvestedTime) {
+        this.totalInvestedTime = totalInvestedTime;
+    }
+
     @Exclude
     public boolean isActivityWeek(){
 
@@ -108,17 +118,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
 
     @Exclude
     public void addNewInvestedTime(InvestedTime investedTime){
-        this.investedTimeList.add(investedTime);
-    }
-
-    @Exclude
-    public float getSumOfTimeInvested(){
-        float sum = 0;
-
-        for (InvestedTime investedTime: investedTimeList) {
-            sum += investedTime.getTime();
-        }
-        return sum;
+        this.totalInvestedTime += investedTime.getTime();
     }
 
     @Exclude
@@ -135,11 +135,11 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     }
 
     @Override
-    public int compareTo(ActivityItem outraActivityItem) {
+    public int compareTo(ActivityItem otherActivityItem) {
 
-        if(this.getSumOfTimeInvested() < outraActivityItem.getSumOfTimeInvested()){
+        if(this.getTotalInvestedTime() < otherActivityItem.getTotalInvestedTime()){
             return -1;
-        }else if(this.getSumOfTimeInvested() > outraActivityItem.getSumOfTimeInvested()){
+        }else if(this.getTotalInvestedTime() > otherActivityItem.getTotalInvestedTime()){
             return 1;
         }else{
             return 0;

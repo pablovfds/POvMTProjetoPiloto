@@ -90,11 +90,12 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements In
             @Override
             public void onClick(View v) {
                 //Inserir validações
-                double time = Double.parseDouble(inputInvestedTime.getText().toString());
+                int time = Integer.valueOf(inputInvestedTime.getText().toString());
                 String createdAt = inputDateInvestedTime.getText().toString();
 
                 InvestedTime investedTime = new InvestedTime(time);
                 investedTime.setCreatedAt(createdAt);
+                activityItem.addNewInvestedTime(investedTime);
                 FirebaseController.getInstance()
                         .insertTi(activityItem, investedTime, mDatabase, ActivityItemDetailsActivity.this);
                 dialog.dismiss();

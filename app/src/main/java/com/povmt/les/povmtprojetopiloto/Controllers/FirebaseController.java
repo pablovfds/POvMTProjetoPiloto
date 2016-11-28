@@ -61,9 +61,22 @@ public class FirebaseController {
                 ActivityItem activityItem = new ActivityItem(title, description);
                 String createdAt = (String) dataSnapshot.child("createdAt").getValue();
                 String updatedAt = (String) dataSnapshot.child("updatedAt").getValue();
+                Object object = dataSnapshot.child("totalInvestedTime").getValue();
+
+                int totalInvestedTime;
+
+                if (object != null) {
+                    if (object instanceof Long) {
+                        totalInvestedTime = ((Long) object).intValue();
+                    } else {
+                        totalInvestedTime = Integer.valueOf((String) object);
+                    }
+                    activityItem.setTotalInvestedTime(totalInvestedTime);
+                }
                 activityItem.setCreatedAt(createdAt);
                 activityItem.setUpdatedAt(updatedAt);
                 activityItem.setUid(uid);
+
                 activityItems.add(activityItem);
                 listener.receiverActivity(200, activityItems);
             }
@@ -82,11 +95,10 @@ public class FirebaseController {
         });
     }
 
-    public void insertTi(ActivityItem activityItem, InvestedTime investedTime,
+    public void insertTi(final ActivityItem activityItem, InvestedTime investedTime,
                          DatabaseReference mDatabase, final InvestedTimeListener listener) {
-        DatabaseReference activitiesRef = mDatabase.child("activities");
-        Log.d("uid", activityItem.getUid());
-        DatabaseReference investedTimeRef = activitiesRef.child(activityItem.getUid()).child("investedTime");
+        final DatabaseReference activitiesRef = mDatabase.child("activities").child(activityItem.getUid());
+        DatabaseReference investedTimeRef = activitiesRef.child("investedTime");
         DatabaseReference newInvestedTimeRef = investedTimeRef.push();
 
         newInvestedTimeRef.setValue(investedTime, new DatabaseReference.CompletionListener() {
@@ -95,6 +107,7 @@ public class FirebaseController {
                 if (databaseError != null) {
                     listener.receiverTi(databaseError.getCode(), "Falha ao cadastrar TI");
                 } else {
+                    activitiesRef.child("totalInvestedTime").setValue(activityItem.getTotalInvestedTime());
                     listener.receiverTi(200, "Ti cadastrada com sucesso");
                 }
             }

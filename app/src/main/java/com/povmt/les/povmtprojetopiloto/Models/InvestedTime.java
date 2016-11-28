@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class InvestedTime {
-    private double time;
+    private int time;
     private String createdAt;
     private String activityItemId;
     private Calendar date;
@@ -14,7 +14,7 @@ public class InvestedTime {
         this.date = Calendar.getInstance();
     }
 
-    public InvestedTime(double time) {
+    public InvestedTime(int time) {
         this.time = time;
         Calendar cal = new GregorianCalendar();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -23,11 +23,11 @@ public class InvestedTime {
         this.date = Calendar.getInstance();
     }
 
-    public double getTime() {
+    public int getTime() {
         return time;
     }
 
-    public void setTime(double time) {
+    public void setTime(int time) {
         this.time = time;
     }
 
