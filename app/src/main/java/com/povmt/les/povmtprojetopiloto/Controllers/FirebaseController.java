@@ -1,7 +1,6 @@
 package com.povmt.les.povmtprojetopiloto.Controllers;
 
-import android.util.Log;
-
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -11,23 +10,24 @@ import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FirebaseController {
 
     private static FirebaseController controller;
+    private static FirebaseAuth mAuth;
 
     public static FirebaseController getInstance(){
-        if (controller == null){
+        if (controller == null && mAuth == null){
             controller = new FirebaseController();
+            mAuth = FirebaseAuth.getInstance();
         }
 
         return controller;
     }
 
     public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, final ActivityListener listener) {
-        DatabaseReference activitiesRef = mDatabase.child("activities");
+        DatabaseReference activitiesRef = mDatabase.child(getEmailUser()).child("activities");
         DatabaseReference newActivityRef = activitiesRef.push();
 
         newActivityRef.setValue(activityItem, new DatabaseReference.CompletionListener() {
@@ -42,15 +42,20 @@ public class FirebaseController {
         });
     }
 
+    /**
+     * TODO pegar lista de tempos investidos
+     * @param activityId
+     * @param mDatabase
+     * @param listener
+     */
     public void retrieveActivityById(String activityId, DatabaseReference mDatabase, ActivityListener listener) {
-        //pegar lista de tempos investidos
     }
 
 
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child("activities");
+        DatabaseReference activitiesRef = mDatabase.child(getEmailUser()).child("activities");
 
         activitiesRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -97,7 +102,7 @@ public class FirebaseController {
 
     public void insertTi(final ActivityItem activityItem, InvestedTime investedTime,
                          DatabaseReference mDatabase, final InvestedTimeListener listener) {
-        final DatabaseReference activitiesRef = mDatabase.child("activities").child(activityItem.getUid());
+        final DatabaseReference activitiesRef = mDatabase.child(getEmailUser()).child("activities").child(activityItem.getUid());
         DatabaseReference investedTimeRef = activitiesRef.child("investedTime");
         DatabaseReference newInvestedTimeRef = investedTimeRef.push();
 
@@ -112,6 +117,10 @@ public class FirebaseController {
                 }
             }
         });
+    }
+
+    private String getEmailUser(){
+        return mAuth.getCurrentUser().getUid();
     }
 
 }

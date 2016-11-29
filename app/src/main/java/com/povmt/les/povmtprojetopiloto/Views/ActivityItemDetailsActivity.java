@@ -2,7 +2,9 @@ package com.povmt.les.povmtprojetopiloto.Views;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
@@ -37,6 +40,9 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements In
     @BindView(R.id.textViewUpdatedAt) TextView textViewUpdatedAt;
 
     private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
+//    private FirebaseAuth.AuthStateListener mAuthListener;
+
     private ActivityItem activityItem;
     private ProgressDialog progressDialog;
 
@@ -48,7 +54,7 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements In
         ButterKnife.bind(this);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        mAuth = FirebaseAuth.getInstance();
         progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
         progressDialog.show();
 

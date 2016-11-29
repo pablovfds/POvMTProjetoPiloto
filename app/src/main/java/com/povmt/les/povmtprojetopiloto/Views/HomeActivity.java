@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -62,6 +64,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @BindView(R.id.recycleview_activities) RecyclerView recyclerViewActivities;
     @BindView(R.id.tv_total_time_invested) TextView ti_total;
+    private TextView nameUser;
+    private TextView emailUser;
+    private ImageView imageUser;
 
     private RecyclerView recyclerView;
     private List<ActivityItem> activityItems;
@@ -78,7 +83,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private LinearLayout graphLayout;
     private float tempoTotal = 0;
     FloatingActionButton fab;
-
 
     public HomeActivity() {
     }
@@ -106,7 +110,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         // Initialize Firebase Auth and Database Reference
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
+//        progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
 
         activityItems = new ArrayList<>();
         retrieveAllActivities();
@@ -149,12 +153,15 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
                     }
                 })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+                .addApi(AppIndex.API).build();
+
+        infoUser();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        mGoogleApiClient.connect();
         mAuth.addAuthStateListener(mAuthListener);
     }
 
@@ -247,7 +254,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
                 if(!activityItemsWeek.contains(activityItem)){
                     activityItemsWeek.add(activityItem);
 
-
                     BarEntryLabels.add(activityItem.getTitle());
                     BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTime(), cont));
                     tempoTotal += activityItem.getTotalInvestedTime();
@@ -257,15 +263,10 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             cont ++;
         }
 
-
         Bardataset = new BarDataSet(BARENTRY, "Atividades");
-
         BARDATA = new BarData(BarEntryLabels, Bardataset);
-
         Bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
-
         chart.setData(BARDATA);
-
         chart.animateY(3000);
     }
 
@@ -287,7 +288,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.nav_show_activities) {
             graphLayout.setVisibility(View.INVISIBLE);
             recyclerView.setVisibility(View.VISIBLE);
@@ -306,7 +306,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             signOut();
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -323,5 +322,18 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
                     }
                 });
+    }
+
+    private void infoUser() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        View header = navigationView.getHeaderView(0);
+
+        nameUser = (TextView) header.findViewById(R.id.nome);
+        emailUser = (TextView) header.findViewById(R.id.email);
+        imageUser = (ImageView) header.findViewById(R.id.imageUser);
+
+        nameUser.setText(mAuth.getCurrentUser().getDisplayName());
+        emailUser.setText(mAuth.getCurrentUser().getEmail());
     }
 }
