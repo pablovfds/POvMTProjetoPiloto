@@ -24,7 +24,9 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private String uid;
     private int totalInvestedTime;
 
-    public ActivityItem() {}
+    public ActivityItem() {
+
+    }
 
     public ActivityItem(String title, String description) {
         this.title = title;
@@ -103,7 +105,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
             cal.setTime(sdf.parse(updatedAt));
 
             if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)){
-                System.out.println("TRUE");
                 return true;
             }
 

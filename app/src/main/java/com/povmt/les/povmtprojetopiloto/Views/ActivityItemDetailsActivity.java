@@ -2,11 +2,10 @@ package com.povmt.les.povmtprojetopiloto.Views;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,13 +16,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
-import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
 import com.povmt.les.povmtprojetopiloto.R;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,7 +37,6 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements In
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
-//    private FirebaseAuth.AuthStateListener mAuthListener;
 
     private ActivityItem activityItem;
     private ProgressDialog progressDialog;
@@ -60,7 +55,7 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements In
 
         if (getIntent().getExtras() != null) {
             Bundle extras = getIntent().getExtras();
-            activityItem = (ActivityItem)extras.get("activityItem");
+            activityItem = (ActivityItem) extras.get("activityItem");
             if (activityItem != null) {
                 textViewTitle.setText(activityItem.getTitle());
                 textViewDescription.setText(activityItem.getDescription());
@@ -70,8 +65,10 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements In
             }
         }
 
-        //Fazer tela de detalhes da atividade
-        //Fazer floating button para adição de novos tempos investidos
+        /**
+         * TODO Fazer tela de detalhes da atividade
+         * TODO Fazer floating button para adição de novos tempos investidos
+         */
     }
 
     @OnClick(R.id.fab_add_invested_time)

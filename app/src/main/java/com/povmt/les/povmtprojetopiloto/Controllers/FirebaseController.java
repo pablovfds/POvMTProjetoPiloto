@@ -1,5 +1,7 @@
 package com.povmt.les.povmtprojetopiloto.Controllers;
 
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -16,18 +18,19 @@ public class FirebaseController {
 
     private static FirebaseController controller;
     private static FirebaseAuth mAuth;
+    private static final String USERS = "users";
+    private static final String ACTIVITES = "activities";
 
     public static FirebaseController getInstance(){
         if (controller == null && mAuth == null){
             controller = new FirebaseController();
             mAuth = FirebaseAuth.getInstance();
         }
-
         return controller;
     }
 
     public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, final ActivityListener listener) {
-        DatabaseReference activitiesRef = mDatabase.child(getEmailUser()).child("activities");
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
         DatabaseReference newActivityRef = activitiesRef.push();
 
         newActivityRef.setValue(activityItem, new DatabaseReference.CompletionListener() {
@@ -55,7 +58,7 @@ public class FirebaseController {
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child(getEmailUser()).child("activities");
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
 
         activitiesRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -102,7 +105,8 @@ public class FirebaseController {
 
     public void insertTi(final ActivityItem activityItem, InvestedTime investedTime,
                          DatabaseReference mDatabase, final InvestedTimeListener listener) {
-        final DatabaseReference activitiesRef = mDatabase.child(getEmailUser()).child("activities").child(activityItem.getUid());
+        Log.d("uid", activityItem.getUid());
+        final DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES).child(activityItem.getUid());
         DatabaseReference investedTimeRef = activitiesRef.child("investedTime");
         DatabaseReference newInvestedTimeRef = investedTimeRef.push();
 
@@ -119,7 +123,7 @@ public class FirebaseController {
         });
     }
 
-    private String getEmailUser(){
+    private String getUid(){
         return mAuth.getCurrentUser().getUid();
     }
 

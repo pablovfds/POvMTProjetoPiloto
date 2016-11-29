@@ -1,7 +1,6 @@
 package com.povmt.les.povmtprojetopiloto.Views;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,12 +64,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     @BindView(R.id.tv_total_time_invested) TextView ti_total;
     private TextView nameUser;
     private TextView emailUser;
-    private ImageView imageUser;
 
     private RecyclerView recyclerView;
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
-    private ProgressDialog progressDialog;
+//    private ProgressDialog progressDialog;
     private List<ActivityItem> activityItemsWeek;
 
     BarChart chart ;
@@ -117,12 +114,16 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         activityItemsWeek = new ArrayList<>();
 
-        //Declaração das paradas pra gerar o gráfico
+        /**
+         * Declaraçao de variaveis para geraçao de grafico
+         */
         chart = (BarChart) findViewById(R.id.chart1);
         BARENTRY = new ArrayList<>();
         BarEntryLabels = new ArrayList<String>();
 
-        //Aqui acontece a mágica da plotagem do gráfico
+        /**
+         * Plotangem do grafico
+         */
         sortListWeek();
         graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
         graphLayout.setVisibility(View.INVISIBLE);
@@ -206,7 +207,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         recyclerView = (RecyclerView) findViewById(R.id.recycleview_activities);
         adapter = new ActivityItemAdapter(this, activityItems);
         recyclerView.setHasFixedSize(true);
-        progressDialog.show();
+//        progressDialog.show();
 
         FirebaseController.getInstance().retrieveAllActivities(mDatabase, activityItems, HomeActivity.this);
 
@@ -223,7 +224,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void receiverActivity(int statusCode, List<ActivityItem> activityItems) {
-        progressDialog.dismiss();
+//        progressDialog.dismiss();
         if (statusCode != 200){
             Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
         } else {
@@ -234,7 +235,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void receiverActivity(int statusCode, String resp) {
-        progressDialog.dismiss();
+//        progressDialog.dismiss();
         if (statusCode != 200){
             Toast.makeText(this, resp, Toast.LENGTH_SHORT).show();
         } else {
@@ -242,10 +243,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         }
     }
 
-    /**
-     * Esse código está protegido pelas Leis de Deus, pq só ele sabe como isso ta funcionando apenas desse jeito.
-     * Ass: Lúcio
-     */
     private void itensOfWeekAndGraph(){
         int cont = 0;
 
@@ -297,7 +294,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             graphLayout.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
-            ti_total.setText("Tempo total investido nesta semana: " + tempoTotal + " horas");
+            ti_total.setText("Tempo investido : " + tempoTotal + " horas");
 
         }  else if (id == R.id.nav_general_report) {
 
@@ -324,6 +321,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
                 });
     }
 
+    /**
+     * Carregar informaçoes do usuario logado
+     */
     private void infoUser() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -331,7 +331,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         nameUser = (TextView) header.findViewById(R.id.nome);
         emailUser = (TextView) header.findViewById(R.id.email);
-        imageUser = (ImageView) header.findViewById(R.id.imageUser);
 
         nameUser.setText(mAuth.getCurrentUser().getDisplayName());
         emailUser.setText(mAuth.getCurrentUser().getEmail());

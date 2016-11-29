@@ -34,8 +34,6 @@ public class GraphActivity extends AppCompatActivity {
         lala();
 
     }
-
-
     private void lala(){
 
         final DatabaseReference atividades = mDatabase.child("activities");
