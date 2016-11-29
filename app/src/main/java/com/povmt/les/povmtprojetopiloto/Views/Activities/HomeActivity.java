@@ -18,9 +18,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -54,6 +58,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
     private DatabaseReference mDatabase;
     private RecyclerView recyclerViewActivities;
 
+    private LinearLayout linegraphLayout;
+    private LineChart lineChart;
+    private List<Entry> LineENTRY ;
+    private List<String> LineEntryLabels ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,10 +87,18 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         BARENTRY = new ArrayList<>();
         BarEntryLabels = new ArrayList<String>();
 
+        //Declaração das paradas pra gerar o gráfico de linha
+        lineChart = (LineChart) findViewById(R.id.linechart);
+        LineENTRY = new ArrayList<>();
+        LineEntryLabels = new ArrayList<String>();
+
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
         graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
         graphLayout.setVisibility(View.GONE);
+
+        linegraphLayout = (LinearLayout) findViewById(R.id.linegraph_layout);
+        linegraphLayout.setVisibility(View.GONE);
     }
 
     private void setRecycleViews(){
@@ -120,6 +137,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         } else {
             adapter.update(activityItems);
             itensOfWeekAndGraph();
+            itensOfWeekAndGraphLine();
         }
     }
 
@@ -172,6 +190,46 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         chart.animateY(3000);
     }
 
+    private void itensOfWeekAndGraphLine(){
+
+        int cont = 0; // esse contador aqui é a posição do elemento na lista, não vai ser alterado depois
+        int tempo = 10; // esse tempo aqui é arbitrário, só para poder a barra ter um tamanho e aparecer
+        // Quando Pablo trouxer do Firebase o tempo investido tiramos isso.
+        // O método getSumOfTimeInvested() está retornando 0 por enquanto
+        tempoTotal = 0;
+
+        for (ActivityItem activityItem : activityItems) {
+            if(activityItem.isActivityWeek()){
+                ActivityItem item = listContainsActivity(activityItemsWeek, activityItem.getUid());
+
+                if (item == null){
+                    activityItemsWeek.add(activityItem);
+
+                } else {
+                    activityItemsWeek.remove(item);
+                    activityItemsWeek.add(activityItem);
+                }
+
+                LineEntryLabels.add(activityItem.getTitle());
+                LineENTRY.add(new Entry(activityItem.getTotalInvestedTime(), cont));
+                tempoTotal += activityItem.getTotalInvestedTime();
+            }
+
+            cont ++;
+        }
+
+
+        LineDataSet linedataset = new LineDataSet(LineENTRY, "Atividades");
+
+        LineData lineDATA = new LineData(LineEntryLabels, linedataset);
+
+        linedataset.setColors(ColorTemplate.COLORFUL_COLORS);
+
+        lineChart.setData(lineDATA);
+
+        lineChart.animateY(3000);
+    }
+
     private void sortListWeek(){
         Collections.sort(activityItemsWeek);
     }
@@ -192,15 +250,24 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener 
         switch (item.getItemId()) {
             case R.id.action_show_graph:
                 graphLayout.setVisibility(View.VISIBLE);
+                linegraphLayout.setVisibility(View.GONE);
                 recyclerViewActivities.setVisibility(View.INVISIBLE);
                 fab.setVisibility(View.INVISIBLE);
                 ti_total.setText("Total de tempo investido: " + tempoTotal);
                 break;
+            case R.id.action_show_graph2:
+                graphLayout.setVisibility(View.GONE);
+                linegraphLayout.setVisibility(View.VISIBLE);
+                recyclerViewActivities.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.INVISIBLE);
+                break;
             case R.id.action_show_activities:
                 graphLayout.setVisibility(View.GONE);
+                linegraphLayout.setVisibility(View.GONE);
                 recyclerViewActivities.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.VISIBLE);
                 break;
+
         }
         return super.onOptionsItemSelected(item);
     }
