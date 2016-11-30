@@ -118,7 +118,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
             Calendar current = Calendar.getInstance();
             int weekOfActivity = cal.get(Calendar.WEEK_OF_YEAR);
 
-            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 1 || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 2) {
+            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 1 || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 2) {
                 return true;
             }
 
