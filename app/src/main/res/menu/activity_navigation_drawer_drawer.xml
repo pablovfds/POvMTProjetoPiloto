@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/report_section"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_show_activities"
+            android:icon="@drawable/ic_activities_list"
+            android:title="Minhas atividades" />
+        <item
+            android:id="@+id/nav_show_graph"
+            android:icon="@drawable/ic_bar_graph"
+            android:title="Relatório semanal" />
+        <item
+            android:id="@+id/nav_general_report"
+            android:icon="@drawable/ic_line_chart"
+            android:title="Histórico"/>
+
+    </group>
+
+    <group
+        android:id="@+id/logout_section"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="Sair"/>
+
+    </group>
+
+
+</menu>

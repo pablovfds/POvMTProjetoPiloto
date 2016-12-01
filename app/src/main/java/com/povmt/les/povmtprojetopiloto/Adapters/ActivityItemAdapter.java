@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,6 +74,9 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
         @Override
         public void onClick(View v) {
             Intent newIntent = new Intent(activity,ActivityItemDetailsActivity.class);
+            ActivityItem activityItem = activityItems.get(position);
+            Log.d("name", activityItem.getTitle());
+
             newIntent.putExtra("activityItem", activityItems.get(position));
             activity.startActivity(newIntent);
         }

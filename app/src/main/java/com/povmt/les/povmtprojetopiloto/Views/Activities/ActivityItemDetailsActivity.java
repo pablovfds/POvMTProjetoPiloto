@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
@@ -27,6 +30,8 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements Re
 
     @BindView(R.id.textViewTotalTi) TextView textViewTotalTi;
 
+    @BindView(R.id.toolbar) Toolbar toolbar;
+
     private ActivityItem activityItem;
 
     @Override
@@ -38,11 +43,20 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements Re
 
         ProgressDialog progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
 
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+
         if (getIntent().getExtras() != null) {
             Bundle extras = getIntent().getExtras();
-            activityItem = (ActivityItem) extras.get("activityItem");
-            getSupportActionBar().setTitle(activityItem.getTitle());
-            setTextViews(activityItem);
+            activityItem = (ActivityItem) extras.getSerializable("activityItem");
+
+            if (activityItem != null){
+                getSupportActionBar().setTitle(activityItem.getTitle());
+                setTextViews(activityItem);
+            }
             progressDialog.dismiss();
         }
     }
@@ -69,5 +83,12 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements Re
         textViewUpdatedAt.setText(activityItem.getUpdatedAt());
         String totalTi = activityItem.getTotalInvestedTime() + " Hora(s)";
         textViewTotalTi.setText(totalTi);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish(); // close this activity as oppose to navigating up
+
+        return false;
     }
 }

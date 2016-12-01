@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">POvMT Projeto Piloto</string>
+    <string name="app_name">POvMT</string>
     <string name="app_name2">Pra Onde</string>
     <string name="app_name3">Vai Meu</string>
     <string name="app_name4">Tempo ?</string>
@@ -10,4 +10,9 @@
 
     <string name="prompt_card_update_at">Ultima atualização:</string>
     <string name="prompt_card_title">Titulo:</string>
+    <string name="total_time">Tempo total investido nesta semana</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
+    <string name="action_settings">Settings</string>
 </resources>

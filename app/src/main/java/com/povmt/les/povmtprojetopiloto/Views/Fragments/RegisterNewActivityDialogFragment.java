@@ -37,7 +37,8 @@ public class RegisterNewActivityDialogFragment extends DialogFragment implements
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("activities");
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override

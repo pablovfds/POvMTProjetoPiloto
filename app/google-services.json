@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "747981865797-1qipin3llj4oho795a6jk41o9ofihtvf.apps.googleusercontent.com",
+          "client_id": "747981865797-qsfhtvrk6vdqbg3orlr7omfr94juhp92.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.povmt.les.povmtprojetopiloto",
-            "certificate_hash": "1E6C18101E37F689D8BB9C007490115F3FA6872D"
+            "certificate_hash": "A4ABAE2A766A86BF0B63656424B9A2E3B5530C3B"
           }
         },
         {

@@ -40,6 +40,8 @@ dependencies {
     compile files('src/lib/GraphView-4.2.1.jar')
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile files('src/lib/GraphView-4.2.1.jar')
+    compile 'com.google.android.gms:play-services-appindexing:9.6.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
