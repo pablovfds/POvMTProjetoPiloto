@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class ActivityItem implements Serializable, Comparable<ActivityItem> {
+public class ActivityItem implements Serializable, Comparable<ActivityItem>{
 
-    private List<InvestedTime> investedTimeList;
     private String updatedAt;
     private String createdAt;
     private String description;
@@ -25,7 +24,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private int totalInvestedTime;
 
     public ActivityItem() {
-
     }
 
     public ActivityItem(String title, String description) {
@@ -36,7 +34,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         dateFormat.setCalendar(cal);
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
-        this.investedTimeList = new ArrayList<>();
         this.totalInvestedTime = 0;
     }
 
@@ -80,14 +77,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.description = description;
     }
 
-    public List<InvestedTime> getInvestedTimeList() {
-        return investedTimeList;
-    }
-
-    public void setInvestedTimeList(List<InvestedTime> investedTimeList) {
-        this.investedTimeList = investedTimeList;
-    }
-
     public int getTotalInvestedTime() {
         return totalInvestedTime;
     }
@@ -105,18 +94,21 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
             cal.setTime(sdf.parse(updatedAt));
 
             if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)){
+                System.out.println("TRUE");
                 return true;
             }
 
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+
         return false;
     }
 
     @Exclude
-    public void addNewInvestedTime(InvestedTime investedTime){
-        this.totalInvestedTime += investedTime.getTime();
+    public void addNewInvestedTime(InvestedTimeItem  investedTimeItem){
+        totalInvestedTime += investedTimeItem.getTime();
     }
 
     @Exclude
@@ -124,6 +116,10 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         HashMap<String, Object> result = new HashMap<>();
         result.put("uid", uid);
         result.put("title", title);
+        result.put("description", description);
+        result.put("createdAt", createdAt);
+        result.put("updatedAt", updatedAt);
+        result.put("sumInvestedTime", totalInvestedTime);
         return result;
     }
 

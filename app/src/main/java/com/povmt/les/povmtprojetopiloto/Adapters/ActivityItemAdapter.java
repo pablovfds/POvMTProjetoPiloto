@@ -11,11 +11,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
-import com.povmt.les.povmtprojetopiloto.Views.ActivityItemDetailsActivity;
-import com.povmt.les.povmtprojetopiloto.Views.HomeActivity;
+import com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapter.ActivityItemViewHolder>{
@@ -32,7 +32,6 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
 
     @Override
     public ActivityItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         View view = layoutInflater.inflate(R.layout.item_card_activity_item, parent, false);
         return new ActivityItemViewHolder(view);
     }
@@ -41,7 +40,12 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
     public void onBindViewHolder(final ActivityItemViewHolder holder, final int position) {
         final ActivityItem activityItem = activityItems.get(position);
         holder.position = position;
-        holder.name.setText(activityItem.getTitle());
+
+        String textResultTitle = "Titulo: " + activityItem.getTitle();
+        String textResultUpdateAt = "Ultima atualização: " + activityItem.getUpdatedAt();
+
+        holder.name.setText(textResultTitle);
+        holder.updatedAt.setText(textResultUpdateAt);
     }
 
     @Override
@@ -58,16 +62,21 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
 
         private int position;
         private TextView name;
+        private TextView updatedAt;
 
         ActivityItemViewHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.textView);
+            name = (TextView) itemView.findViewById(R.id.textViewTitle);
+            updatedAt = (TextView) itemView.findViewById(R.id.textViewUpdatedAt);
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             Intent newIntent = new Intent(activity,ActivityItemDetailsActivity.class);
+            ActivityItem activityItem = activityItems.get(position);
+            Log.d("name", activityItem.getTitle());
+
             newIntent.putExtra("activityItem", activityItems.get(position));
             activity.startActivity(newIntent);
         }

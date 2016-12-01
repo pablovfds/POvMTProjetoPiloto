@@ -7,10 +7,11 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
-import com.povmt.les.povmtprojetopiloto.Models.InvestedTime;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 
 import java.util.List;
 
@@ -30,7 +31,9 @@ public class FirebaseController {
     }
 
     public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, final ActivityListener listener) {
-        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
+
+        DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+        DatabaseReference activitiesRef = userRef.child(ACTIVITES);
         DatabaseReference newActivityRef = activitiesRef.push();
 
         newActivityRef.setValue(activityItem, new DatabaseReference.CompletionListener() {
@@ -45,69 +48,69 @@ public class FirebaseController {
         });
     }
 
-    /**
-     * TODO pegar lista de tempos investidos
-     * @param activityId
-     * @param mDatabase
-     * @param listener
-     */
-    public void retrieveActivityById(String activityId, DatabaseReference mDatabase, ActivityListener listener) {
-    }
-
-
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
         DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
 
-        activitiesRef.addChildEventListener(new ChildEventListener() {
+        activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String uid) {
-                String title = (String) dataSnapshot.child("title").getValue();
-                String description = (String) dataSnapshot.child("description").getValue();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
 
-                ActivityItem activityItem = new ActivityItem(title, description);
-                String createdAt = (String) dataSnapshot.child("createdAt").getValue();
-                String updatedAt = (String) dataSnapshot.child("updatedAt").getValue();
-                Object object = dataSnapshot.child("totalInvestedTime").getValue();
+                    String activityID = postSnapshot.getKey();
 
-                int totalInvestedTime;
+                    ActivityItem auxItem= listContainsActivity(activityItems, activityID);
 
-                if (object != null) {
-                    if (object instanceof Long) {
-                        totalInvestedTime = ((Long) object).intValue();
+                    String title = (String) postSnapshot.child("title").getValue();
+                    String description = (String) postSnapshot.child("description").getValue();
+                    String createdAt = (String) postSnapshot.child("createdAt").getValue();
+                    String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
+                    Object object = postSnapshot.child("totalInvestedTime").getValue();
+
+                    int totalInvestedTime;
+
+                    if (object != null) {
+
+                        if (object instanceof Long) {
+                            totalInvestedTime = ((Long) object).intValue();
+                        } else {
+                            totalInvestedTime = Integer.valueOf((String) object);
+                        }
                     } else {
-                        totalInvestedTime = Integer.valueOf((String) object);
+                        totalInvestedTime = 0;
                     }
-                    activityItem.setTotalInvestedTime(totalInvestedTime);
-                }
-                activityItem.setCreatedAt(createdAt);
-                activityItem.setUpdatedAt(updatedAt);
-                activityItem.setUid(uid);
 
-                activityItems.add(activityItem);
-                listener.receiverActivity(200, activityItems);
+                    ActivityItem activityItem = new ActivityItem(title, description);
+
+                    activityItem.setCreatedAt(createdAt);
+                    activityItem.setUpdatedAt(updatedAt);
+                    activityItem.setUid(activityID);
+                    activityItem.setTotalInvestedTime(totalInvestedTime);
+
+                    if (auxItem == null) {
+                        activityItems.add(activityItem);
+                    } else {
+                        activityItems.remove(auxItem);
+                        activityItems.add(activityItem);
+                    }
+                }
+                listener.receiverActivity(200, activityItems, "Sucesso ao carregar lista de atividades.");
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {
+                listener.receiverActivity(databaseError.getCode(), "Erro ao carregar a lista de atividades.");
+            }
         });
     }
 
-    public void insertTi(final ActivityItem activityItem, InvestedTime investedTime,
+    public void insertTi(final ActivityItem activityItem, final InvestedTimeItem investedTime,
                          DatabaseReference mDatabase, final InvestedTimeListener listener) {
-        Log.d("uid", activityItem.getUid());
-        final DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES).child(activityItem.getUid());
-        DatabaseReference investedTimeRef = activitiesRef.child("investedTime");
+
+        DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+        final DatabaseReference activitiesRef = userRef.child("activities").child(activityItem.getUid());
+        DatabaseReference investedTimeRef = activitiesRef.child("investedTimeList");
         DatabaseReference newInvestedTimeRef = investedTimeRef.push();
 
         newInvestedTimeRef.setValue(investedTime, new DatabaseReference.CompletionListener() {
@@ -116,15 +119,27 @@ public class FirebaseController {
                 if (databaseError != null) {
                     listener.receiverTi(databaseError.getCode(), "Falha ao cadastrar TI");
                 } else {
-                    activitiesRef.child("totalInvestedTime").setValue(activityItem.getTotalInvestedTime());
-                    listener.receiverTi(200, "Ti cadastrada com sucesso");
+                    DatabaseReference activityItemUpdateAtRef =  activitiesRef.child("updatedAt");
+                    DatabaseReference activityItemTotalTitRef =  activitiesRef.child("totalInvestedTime");
+                    activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
+                    activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
+                    listener.receiverTi(200, "TI cadastrada com sucesso");
                 }
             }
         });
     }
 
+    private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId){
+        for (int i=0; i < activityItems.size(); i++) {
+            ActivityItem item = activityItems.get(i);
+            if (item.getUid().equals(activityId)){
+                return item;
+            }
+        }
+        return null;
+    }
+
     private String getUid(){
         return mAuth.getCurrentUser().getUid();
     }
-
 }

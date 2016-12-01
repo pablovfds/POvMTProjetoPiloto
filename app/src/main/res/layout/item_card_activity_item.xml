@@ -16,7 +16,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
         android:padding="8dp">
@@ -24,13 +24,21 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView"
-            android:text="Default"
+            android:id="@+id/textViewTitle"
+            android:text="@string/prompt_card_title"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:paddingTop="12px"
             />
+
+        <TextView
+            android:text="@string/prompt_card_update_at"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewTitle"
+            android:layout_alignParentStart="true"
+            android:id="@+id/textViewUpdatedAt" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>
