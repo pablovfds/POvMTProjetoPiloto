@@ -2,7 +2,6 @@ package com.povmt.les.povmtprojetopiloto.Views.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -16,9 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -30,9 +26,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -87,6 +81,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private GoogleApiClient client;
     private GoogleApiClient mGoogleApiClient;
 
+    private List<ActivityItem> activitiesTwoLastWeeks;
+    private BarChart histChart;
+    private List<BarEntry> entries;
+    private List<String> labels;
+    private LinearLayout chartLayoutHist;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +96,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle("Ativiades Recentes");
+        getSupportActionBar().setTitle("Atividades Recentes");
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -116,17 +116,26 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         setRecycleViews();
 
         activityItemsWeek = new ArrayList<>();
+        activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
+
 
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
         BARENTRY = new ArrayList<>();
         BarEntryLabels = new ArrayList<String>();
 
+        //Declaração das paradas pra gerar o gráficoHist
+        histChart = (BarChart) findViewById(R.id.histchart);
+        entries = new ArrayList<BarEntry>();
+        labels = new ArrayList<String>();
+
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
         graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
         graphLayout.setVisibility(View.GONE);
 
+        chartLayoutHist = (LinearLayout) findViewById(R.id.graph_layout_hist);
+        chartLayoutHist.setVisibility(View.GONE);
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -181,16 +190,22 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         int id = item.getItemId();
         if (id == R.id.nav_show_activities) {
             graphLayout.setVisibility(View.INVISIBLE);
+            chartLayoutHist.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_show_graph) {
             graphLayout.setVisibility(View.VISIBLE);
+            chartLayoutHist.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
             ti_total.setText("Tempo investido : " + tempoTotal + " horas");
 
         }  else if (id == R.id.nav_general_report) {
+            graphLayout.setVisibility(View.INVISIBLE);
+            chartLayoutHist.setVisibility(View.VISIBLE);
+            recyclerViewActivities.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.INVISIBLE);
 
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
@@ -257,6 +272,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         } else {
             adapter.update(activityItems);
             itensOfWeekAndGraph();
+            plotBarChart();
         }
     }
 
@@ -305,6 +321,26 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         chart.setData(BARDATA);
 
         chart.animateY(3000);
+    }
+
+    private void plotBarChart() {
+        int counter = 0;
+        for (ActivityItem activityitem : activitiesTwoLastWeeks) {
+            if (activityitem.isActivityTwoLastWeeks()) {
+                activitiesTwoLastWeeks.add(activityitem);
+
+                labels.add(activityitem.getTitle());
+                entries.add(new BarEntry(activityitem.getTotalInvestedTime(), counter));
+            }
+            counter++;
+        }
+
+        BarDataSet dataset = new BarDataSet(entries, "Atividades");
+        BarData barData = new BarData(labels, dataset);
+        dataset.setColors(ColorTemplate.COLORFUL_COLORS);
+        histChart.setData(barData);
+        histChart.animateY(3000);
+
     }
 
     private void sortListWeek() {

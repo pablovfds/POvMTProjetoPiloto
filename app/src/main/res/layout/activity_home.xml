@@ -51,6 +51,22 @@
             />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/graph_layout_hist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        android:weightSum="3">
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/histchart"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1.8" />
+
+    </LinearLayout>
+
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
