@@ -124,6 +124,7 @@ public class FirebaseController {
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
+
                 }
             }
         });

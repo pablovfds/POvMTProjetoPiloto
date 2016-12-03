@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -43,6 +44,7 @@ import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialo
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
@@ -170,13 +172,19 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     protected void onStart() {
+
         super.onStart();
         mGoogleApiClient.connect();
         mAuth.addAuthStateListener(mAuthListener);
+
+
     }
 
     @Override
     public void onBackPressed() {
+
+        super.onBackPressed();
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -187,7 +195,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         if (id == R.id.nav_show_activities) {
             graphLayout.setVisibility(View.INVISIBLE);
             chartLayoutHist.setVisibility(View.INVISIBLE);
@@ -195,6 +205,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_show_graph) {
+
             graphLayout.setVisibility(View.VISIBLE);
             chartLayoutHist.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
@@ -292,6 +303,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         tempoTotal = 0;
 
         for (ActivityItem activityItem : activityItems) {
+
             if (activityItem.isActivityWeek()) {
                 ActivityItem item = listContainsActivity(activityItemsWeek, activityItem.getUid());
 
@@ -301,18 +313,35 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
                 } else {
                     activityItemsWeek.remove(item);
                     activityItemsWeek.add(activityItem);
+
                 }
+
 
                 BarEntryLabels.add(activityItem.getTitle());
                 BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTime(), cont));
                 tempoTotal += activityItem.getTotalInvestedTime();
+
             }
 
             cont++;
+
         }
 
+        ArrayList<String> listaLabel = new ArrayList(new HashSet(BarEntryLabels));
+        BarEntryLabels = listaLabel;
 
-        BarDataSet bardataset = new BarDataSet(BARENTRY, "Atividades");
+        ArrayList<BarEntry> listaBar = new ArrayList<>();
+
+        int k = listaLabel.size();
+        int n = BARENTRY.size();
+
+        if (k <= n){
+            for (int i = 0; i < k; i++) {
+              listaBar.add(BARENTRY.get(n - i - 1));
+            }
+        }
+
+        BarDataSet bardataset = new BarDataSet(listaBar, "Atividades");
 
         BarData BARDATA = new BarData(BarEntryLabels, bardataset);
 

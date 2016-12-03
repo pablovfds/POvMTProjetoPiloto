@@ -46,6 +46,8 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
 
     private OnCompleteListener mListener;
 
+
+
     public static RegisterNewTiDialogFragment newInstance(ActivityItem activityItem) {
 
         Bundle args = new Bundle();
@@ -115,6 +117,8 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     @OnClick(R.id.buttonCreate)
     public void createNewTiDialog(){
 
+
+
         inputTimeTi.setError(null);
         inputDateTi.setError(null);
         int investedTime = Integer.valueOf(inputTimeTi.getText().toString());
@@ -130,11 +134,16 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
             Calendar cal = new GregorianCalendar();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             dateFormat.setCalendar(cal);
-            activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
+            activityItem.setUpdatedAt(createdAt);
+//            activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
             activityItem.addNewInvestedTime(tiItem);
 
             FirebaseController.getInstance()
                     .insertTi(activityItem, tiItem, mDatabase, this);
+
+
+
+
         }
     }
 
