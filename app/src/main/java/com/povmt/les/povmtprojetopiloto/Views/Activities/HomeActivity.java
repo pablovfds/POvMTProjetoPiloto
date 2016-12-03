@@ -327,23 +327,36 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         }
 
+
         ArrayList<String> listaLabel = new ArrayList(new HashSet(BarEntryLabels));
-        BarEntryLabels = listaLabel;
+//        BarEntryLabels = listaLabel;
+
+        int k = listaLabel.size();
+
+        ArrayList<String> listaLabel2 = new ArrayList<String>();
+        int m = BarEntryLabels.size();
+
+
+        for (int i = m - k; i < m; i++) {
+            listaLabel2.add(BarEntryLabels.get(i));
+        }
+
+
 
         ArrayList<BarEntry> listaBar = new ArrayList<>();
 
-        int k = listaLabel.size();
+
         int n = BARENTRY.size();
 
         if (k <= n){
-            for (int i = 0; i < k; i++) {
-              listaBar.add(BARENTRY.get(n - i - 1));
+            for (int i = n-k; i<n; i++) {
+              listaBar.add(BARENTRY.get(i));
             }
         }
 
         BarDataSet bardataset = new BarDataSet(listaBar, "Atividades");
 
-        BarData BARDATA = new BarData(BarEntryLabels, bardataset);
+        BarData BARDATA = new BarData(listaLabel2, bardataset);
 
         bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
 
