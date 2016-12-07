@@ -13,6 +13,10 @@ import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class FirebaseController {
@@ -125,6 +129,39 @@ public class FirebaseController {
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
                 }
+            }
+        });
+    }
+
+    public void checkIfTiIsRegisterInLastDay(DatabaseReference mDatabase,InvestedTimeListener listener){
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
+
+        activitiesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
+
+                    SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
+                    Date dateObj = null;
+                    try {
+                        dateObj = curFormater.parse(updatedAt);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(dateObj);
+
+                    Calendar auxCalendar = Calendar.getInstance();
+
+                    Log.d("cal", String.valueOf(auxCalendar.compareTo(calendar)));
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
