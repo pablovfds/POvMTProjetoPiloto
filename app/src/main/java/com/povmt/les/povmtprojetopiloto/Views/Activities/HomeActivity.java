@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -75,9 +74,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private ArrayList<BarEntry> BARENTRY;
     private ArrayList<String> BarEntryLabels;
     private LinearLayout graphLayout;
+
     private int tempoTotal = 0;
-    private DatabaseReference mDatabase;
     private RecyclerView recyclerViewActivities;
+
+    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private GoogleApiClient client;
@@ -85,8 +86,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     private List<ActivityItem> activitiesTwoLastWeeks;
     private BarChart histChart;
-    private List<BarEntry> entries;
-    private List<String> labels;
+    private List<BarEntry> histEntries;
+    private List<String> histLabels;
     private LinearLayout chartLayoutHist;
 
     @Override
@@ -126,10 +127,10 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         BARENTRY = new ArrayList<>();
         BarEntryLabels = new ArrayList<String>();
 
-        //Declaração das paradas pra gerar o gráficoHist
+        //Declaração das paradas pra gerar o gráfico do Historico
         histChart = (BarChart) findViewById(R.id.histchart);
-        entries = new ArrayList<BarEntry>();
-        labels = new ArrayList<String>();
+        histEntries = new ArrayList<BarEntry>();
+        histLabels = new ArrayList<String>();
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
@@ -283,7 +284,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         } else {
             adapter.update(activityItems);
             itensOfWeekAndGraph();
-            plotBarChart();
+            plotHistChart();
         }
     }
 
@@ -365,23 +366,30 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         chart.animateY(3000);
     }
 
-    private void plotBarChart() {
-        int counter = 0;
-        for (ActivityItem activityitem : activitiesTwoLastWeeks) {
-            if (activityitem.isActivityTwoLastWeeks()) {
-                activitiesTwoLastWeeks.add(activityitem);
+    private void plotHistChart() {
+        int totalLastWeek = 0;
+        int totalLastLastWeek = 0;
 
-                labels.add(activityitem.getTitle());
-                entries.add(new BarEntry(activityitem.getTotalInvestedTime(), counter));
+        for (ActivityItem activityItem : activityItems) {
+            if (activityItem.isActivityLastWeek()) {
+                totalLastWeek += activityItem.getTotalInvestedTime();
+            } else if (activityItem.isActivityLastLastWeek()) {
+                totalLastLastWeek += activityItem.getTotalInvestedTime();
             }
-            counter++;
         }
 
-        BarDataSet dataset = new BarDataSet(entries, "Atividades");
-        BarData barData = new BarData(labels, dataset);
-        dataset.setColors(ColorTemplate.COLORFUL_COLORS);
+        histLabels.add("Semana Atual");
+        histEntries.add(new BarEntry(tempoTotal, 0));
+        histLabels.add("Semana Passada");
+        histEntries.add(new BarEntry(totalLastWeek, 1));
+        histLabels.add("Semana Retrasada");
+        histEntries.add(new BarEntry(totalLastLastWeek, 2));
+
+        BarDataSet barDataSet = new BarDataSet(histEntries, "Historico de Atividades");
+        BarData barData = new BarData(histLabels, barDataSet);
+
+        barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         histChart.setData(barData);
-        histChart.animateY(3000);
 
     }
 

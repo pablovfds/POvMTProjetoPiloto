@@ -110,7 +110,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     Verifica se a atividade é das ultimas duas semanas.
     */
     @Exclude
-    public boolean isActivityTwoLastWeeks() {
+    public boolean isActivityLastLastWeek() {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar cal = Calendar.getInstance();
@@ -118,7 +118,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
             Calendar current = Calendar.getInstance();
             int weekOfActivity = cal.get(Calendar.WEEK_OF_YEAR);
 
-            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 1 || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 2) {
+            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 2) {
                 return true;
             }
 
@@ -127,6 +127,26 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
         }
         return false;
     }
+
+    @Exclude
+    public boolean isActivityLastWeek() {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sdf.parse(updatedAt));
+            Calendar current = Calendar.getInstance();
+            int weekOfActivity = cal.get(Calendar.WEEK_OF_YEAR);
+
+            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 1) {
+                return true;
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     @Exclude
     public void addNewInvestedTime(InvestedTimeItem  investedTimeItem){
         totalInvestedTime += investedTimeItem.getTime();
