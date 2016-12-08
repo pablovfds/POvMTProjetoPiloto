@@ -4,7 +4,6 @@ package com.povmt.les.povmtprojetopiloto.Views.Fragments;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;

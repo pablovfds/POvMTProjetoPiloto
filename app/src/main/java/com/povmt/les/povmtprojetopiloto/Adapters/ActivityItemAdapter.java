@@ -11,11 +11,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
-import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapter.ActivityItemViewHolder>{

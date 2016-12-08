@@ -3,7 +3,6 @@ package com.povmt.les.povmtprojetopiloto.Controllers;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,8 +21,8 @@ public class FirebaseController {
     private static final String USERS = "users";
     private static final String ACTIVITES = "activities";
 
-    public static FirebaseController getInstance(){
-        if (controller == null && mAuth == null){
+    public static FirebaseController getInstance() {
+        if (controller == null && mAuth == null) {
             controller = new FirebaseController();
             mAuth = FirebaseAuth.getInstance();
         }
@@ -56,17 +55,18 @@ public class FirebaseController {
         activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
                     String activityID = postSnapshot.getKey();
 
-                    ActivityItem auxItem= listContainsActivity(activityItems, activityID);
+                    ActivityItem auxItem = listContainsActivity(activityItems, activityID);
 
                     String title = (String) postSnapshot.child("title").getValue();
                     String description = (String) postSnapshot.child("description").getValue();
                     String createdAt = (String) postSnapshot.child("createdAt").getValue();
                     String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
                     Object object = postSnapshot.child("totalInvestedTime").getValue();
+                    Object objectPrioridade = postSnapshot.child("prioridade").getValue();
 
                     int totalInvestedTime;
 
@@ -81,7 +81,9 @@ public class FirebaseController {
                         totalInvestedTime = 0;
                     }
 
-                    ActivityItem activityItem = new ActivityItem(title, description);
+                    int prioridade = Integer.parseInt(String.valueOf(objectPrioridade));
+
+                    ActivityItem activityItem = new ActivityItem(title, description, prioridade);
 
                     activityItem.setCreatedAt(createdAt);
                     activityItem.setUpdatedAt(updatedAt);
@@ -119,8 +121,8 @@ public class FirebaseController {
                 if (databaseError != null) {
                     listener.receiverTi(databaseError.getCode(), "Falha ao cadastrar TI");
                 } else {
-                    DatabaseReference activityItemUpdateAtRef =  activitiesRef.child("updatedAt");
-                    DatabaseReference activityItemTotalTitRef =  activitiesRef.child("totalInvestedTime");
+                    DatabaseReference activityItemUpdateAtRef = activitiesRef.child("updatedAt");
+                    DatabaseReference activityItemTotalTitRef = activitiesRef.child("totalInvestedTime");
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
@@ -130,17 +132,17 @@ public class FirebaseController {
         });
     }
 
-    private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId){
-        for (int i=0; i < activityItems.size(); i++) {
+    private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId) {
+        for (int i = 0; i < activityItems.size(); i++) {
             ActivityItem item = activityItems.get(i);
-            if (item.getUid().equals(activityId)){
+            if (item.getUid().equals(activityId)) {
                 return item;
             }
         }
         return null;
     }
 
-    private String getUid(){
+    private String getUid() {
         return mAuth.getCurrentUser().getUid();
     }
 }

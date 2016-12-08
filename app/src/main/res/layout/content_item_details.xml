@@ -95,4 +95,22 @@
         android:layout_marginTop="20dp"
         android:id="@+id/textView9"
         android:layout_below="@+id/textViewCreatedAt" />
+
+    <TextView
+        android:text="Prioridade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewUpdatedAt"
+        android:layout_marginTop="12dp"
+        android:id="@+id/textView4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewPrioridade"
+        android:textSize="18sp"
+        android:layout_below="@+id/textView4"
+        android:layout_alignParentStart="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:layout_alignEnd="@+id/textViewUpdatedAt" />
 </RelativeLayout>

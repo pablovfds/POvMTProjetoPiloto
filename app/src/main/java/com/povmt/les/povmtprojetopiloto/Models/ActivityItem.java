@@ -6,27 +6,26 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class ActivityItem implements Serializable, Comparable<ActivityItem>{
+public class ActivityItem implements Serializable, Comparable<ActivityItem> {
 
     private String updatedAt;
     private String createdAt;
     private String description;
     private String title;
     private String uid;
+    private int prioridade;
     private int totalInvestedTime;
 
     public ActivityItem() {
     }
 
-    public ActivityItem(String title, String description) {
+    public ActivityItem(String title, String description, int prioridade) {
         this.title = title;
         this.description = description;
         Calendar cal = new GregorianCalendar();
@@ -35,6 +34,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
         this.totalInvestedTime = 0;
+        this.prioridade = prioridade;
     }
 
     public String getUid() {
@@ -77,6 +77,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
         this.description = description;
     }
 
+    public int getPrioridade() {
+        return prioridade;
+    }
+
+    public void setPrioridade(int prioridade) {
+        this.prioridade = prioridade;
+    }
+
     public int getTotalInvestedTime() {
         return totalInvestedTime;
     }
@@ -86,14 +94,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     }
 
     @Exclude
-    public boolean isActivityWeek(){
+    public boolean isActivityWeek() {
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar cal = Calendar.getInstance();
             cal.setTime(sdf.parse(updatedAt));
 
-            if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)){
+            if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)) {
                 System.out.println("TRUE");
                 return true;
             }
@@ -127,8 +135,9 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
         }
         return false;
     }
+
     @Exclude
-    public void addNewInvestedTime(InvestedTimeItem  investedTimeItem){
+    public void addNewInvestedTime(InvestedTimeItem investedTimeItem) {
         totalInvestedTime += investedTimeItem.getTime();
     }
 
@@ -141,6 +150,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
         result.put("createdAt", createdAt);
         result.put("updatedAt", updatedAt);
         result.put("sumInvestedTime", totalInvestedTime);
+        result.put("prioridade", prioridade);
         return result;
     }
 
@@ -152,11 +162,11 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     @Override
     public int compareTo(ActivityItem otherActivityItem) {
 
-        if(this.getTotalInvestedTime() < otherActivityItem.getTotalInvestedTime()){
+        if (this.getTotalInvestedTime() < otherActivityItem.getTotalInvestedTime()) {
             return -1;
-        }else if(this.getTotalInvestedTime() > otherActivityItem.getTotalInvestedTime()){
+        } else if (this.getTotalInvestedTime() > otherActivityItem.getTotalInvestedTime()) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }

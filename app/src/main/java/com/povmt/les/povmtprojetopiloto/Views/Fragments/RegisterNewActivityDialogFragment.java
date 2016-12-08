@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -15,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
+import com.povmt.les.povmtprojetopiloto.Models.Util;
 import com.povmt.les.povmtprojetopiloto.R;
 
 import java.util.List;
@@ -25,8 +28,12 @@ import butterknife.OnClick;
 
 public class RegisterNewActivityDialogFragment extends DialogFragment implements ActivityListener {
 
-    @BindView(R.id.input_name_activity_item) TextInputEditText inputTitle;
-    @BindView(R.id.input_description_activity_item) TextInputEditText inputDescription;
+    @BindView(R.id.input_name_activity_item)
+    TextInputEditText inputTitle;
+    @BindView(R.id.input_description_activity_item)
+    TextInputEditText inputDescription;
+    @BindView(R.id.rgPrioridade)
+    RadioGroup radioGroupPrioridade;
 
     private DatabaseReference mDatabase;
 
@@ -65,25 +72,35 @@ public class RegisterNewActivityDialogFragment extends DialogFragment implements
     }
 
     @OnClick(R.id.btn_cancel_create_activity)
-    public void dismissDialog(){
+    public void dismissDialog() {
         this.dismiss();
     }
 
     @OnClick(R.id.btn_create_activity)
-    public void createActivity(){
+    public void createActivity() {
         inputTitle.setError(null);
         inputDescription.setError(null);
         String titleActivity = inputTitle.getText().toString();
         String descriptionActivity = inputDescription.getText().toString();
+        RadioButton radioButtonSelecionado = (RadioButton) getView().findViewById(radioGroupPrioridade.getCheckedRadioButtonId());
 
-        if(titleActivity.isEmpty()){
+        if (titleActivity.isEmpty()) {
             inputTitle.setError("Insira um título para a atividade");
-        } else if (descriptionActivity.isEmpty()){
+        } else if (descriptionActivity.isEmpty()) {
             inputDescription.setError("Insira uma descrição para a atividade");
         } else {
-            ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity);
+            String prioridade = radioButtonSelecionado.getText().toString();
 
-            FirebaseController.getInstance().insertActivity(activityItem, mDatabase, this);
+            if (prioridade.equals("Baixa")) {
+                ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity, Util.PRIORIDADE_BAIXA);
+                FirebaseController.getInstance().insertActivity(activityItem, mDatabase, this);
+            } else if (prioridade.equals("Media")) {
+                ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity, Util.PRIORIDADE_MEDIA);
+                FirebaseController.getInstance().insertActivity(activityItem, mDatabase, this);
+            } else if (prioridade.equals("Alta")) {
+                ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity, Util.PRIORIDADE_ALTA);
+                FirebaseController.getInstance().insertActivity(activityItem, mDatabase, this);
+            }
         }
     }
 
@@ -99,7 +116,7 @@ public class RegisterNewActivityDialogFragment extends DialogFragment implements
 
     @Override
     public void receiverActivity(int statusCode, String resp) {
-        if (statusCode != 200){
+        if (statusCode != 200) {
             Toast.makeText(getActivity(), resp, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getActivity(), resp, Toast.LENGTH_SHORT).show();
