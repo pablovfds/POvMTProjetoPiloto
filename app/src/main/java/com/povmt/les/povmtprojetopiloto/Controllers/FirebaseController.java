@@ -1,9 +1,6 @@
 package com.povmt.les.povmtprojetopiloto.Controllers;
 
-import android.util.Log;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,10 +17,11 @@ public class FirebaseController {
     private static FirebaseController controller;
     private static FirebaseAuth mAuth;
     private static final String USERS = "users";
-    private static final String ACTIVITES = "activities";
+    private static final String ACTIVITIES = "activities";
+    private static final String INVESTED_TIME_LIST = "investedTimeList";
 
-    public static FirebaseController getInstance(){
-        if (controller == null && mAuth == null){
+    public static FirebaseController getInstance() {
+        if (controller == null && mAuth == null) {
             controller = new FirebaseController();
             mAuth = FirebaseAuth.getInstance();
         }
@@ -33,7 +31,7 @@ public class FirebaseController {
     public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, final ActivityListener listener) {
 
         DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
-        DatabaseReference activitiesRef = userRef.child(ACTIVITES);
+        DatabaseReference activitiesRef = userRef.child(ACTIVITIES);
         DatabaseReference newActivityRef = activitiesRef.push();
 
         newActivityRef.setValue(activityItem, new DatabaseReference.CompletionListener() {
@@ -51,16 +49,16 @@ public class FirebaseController {
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITIES);
 
         activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
                     String activityID = postSnapshot.getKey();
 
-                    ActivityItem auxItem= listContainsActivity(activityItems, activityID);
+                    ActivityItem auxItem = listContainsActivity(activityItems, activityID);
 
                     String title = (String) postSnapshot.child("title").getValue();
                     String description = (String) postSnapshot.child("description").getValue();
@@ -105,6 +103,58 @@ public class FirebaseController {
         });
     }
 
+    public void retrieveAllInvestedTimeItems(DatabaseReference mDatabase, final List<InvestedTimeItem> investedTimeItems,
+                                         final InvestedTimeListener listener) {
+
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITIES);
+
+        activitiesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+
+                    for (DataSnapshot snapshot : postSnapshot.child(INVESTED_TIME_LIST).getChildren()) {
+
+                        String investedTimeItemId = snapshot.getKey();
+
+                        InvestedTimeItem auxItem = listContainsInvestedTimeItem(investedTimeItems, investedTimeItemId);
+
+                        String createdAt = (String) snapshot.child("createdAt").getValue();
+                        Object object = (Object) snapshot.child("time").getValue();
+
+                        int time;
+
+                        if (object != null) {
+                            if (object instanceof Long) {
+                                time = ((Long) object).intValue();
+                            } else {
+                                time = ((Double) object).intValue();
+                            }
+                        } else {
+                            time = 0;
+                        }
+
+                        InvestedTimeItem investedTimeItem = new InvestedTimeItem(time, createdAt);
+
+                        investedTimeItem.setUid(investedTimeItemId);
+
+                        if (auxItem != null) {
+                            investedTimeItems.remove(auxItem);
+                        }
+                        investedTimeItems.add(investedTimeItem);
+                    }
+                }
+                listener.receiverTi(200, investedTimeItems, "Sucesso ao carregar TIs");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                listener.receiverTi(databaseError.getCode(), "Erro ao carregar TIs");
+            }
+        });
+
+    }
+
     public void insertTi(final ActivityItem activityItem, final InvestedTimeItem investedTime,
                          DatabaseReference mDatabase, final InvestedTimeListener listener) {
 
@@ -119,8 +169,8 @@ public class FirebaseController {
                 if (databaseError != null) {
                     listener.receiverTi(databaseError.getCode(), "Falha ao cadastrar TI");
                 } else {
-                    DatabaseReference activityItemUpdateAtRef =  activitiesRef.child("updatedAt");
-                    DatabaseReference activityItemTotalTitRef =  activitiesRef.child("totalInvestedTime");
+                    DatabaseReference activityItemUpdateAtRef = activitiesRef.child("updatedAt");
+                    DatabaseReference activityItemTotalTitRef = activitiesRef.child("totalInvestedTime");
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
@@ -130,17 +180,28 @@ public class FirebaseController {
         });
     }
 
-    private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId){
-        for (int i=0; i < activityItems.size(); i++) {
+    private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId) {
+        for (int i = 0; i < activityItems.size(); i++) {
             ActivityItem item = activityItems.get(i);
-            if (item.getUid().equals(activityId)){
+            if (item.getUid().equals(activityId)) {
                 return item;
             }
         }
         return null;
     }
 
-    private String getUid(){
+    private InvestedTimeItem listContainsInvestedTimeItem(List<InvestedTimeItem> investedTimeItems,
+                                                          String investedTimeItemId) {
+        for (int i = 0; i < investedTimeItems.size(); i++) {
+            InvestedTimeItem item = investedTimeItems.get(i);
+            if (item.getUid().equals(investedTimeItemId)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private String getUid() {
         return mAuth.getCurrentUser().getUid();
     }
 }

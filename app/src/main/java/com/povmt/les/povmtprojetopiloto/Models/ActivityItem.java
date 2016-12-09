@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class ActivityItem implements Serializable, Comparable<ActivityItem>{
+public class ActivityItem implements Serializable, Comparable<ActivityItem> {
 
     private String updatedAt;
     private String createdAt;
@@ -86,14 +86,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     }
 
     @Exclude
-    public boolean isActivityWeek(){
+    public boolean isActivityWeek() {
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar cal = Calendar.getInstance();
             cal.setTime(sdf.parse(updatedAt));
 
-            if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)){
+            if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)) {
                 System.out.println("TRUE");
                 return true;
             }
@@ -106,9 +106,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
         return false;
     }
 
-    /*
-    Verifica se a atividade é das ultimas duas semanas.
-    */
     @Exclude
     public boolean isActivityLastLastWeek() {
         try {
@@ -148,7 +145,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     }
 
     @Exclude
-    public void addNewInvestedTime(InvestedTimeItem  investedTimeItem){
+    public void addNewInvestedTime(InvestedTimeItem investedTimeItem) {
         totalInvestedTime += investedTimeItem.getTime();
     }
 
@@ -172,11 +169,11 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     @Override
     public int compareTo(ActivityItem otherActivityItem) {
 
-        if(this.getTotalInvestedTime() < otherActivityItem.getTotalInvestedTime()){
+        if (this.getTotalInvestedTime() < otherActivityItem.getTotalInvestedTime()) {
             return -1;
-        }else if(this.getTotalInvestedTime() > otherActivityItem.getTotalInvestedTime()){
+        } else if (this.getTotalInvestedTime() > otherActivityItem.getTotalInvestedTime()) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }

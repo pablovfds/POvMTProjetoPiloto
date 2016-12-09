@@ -37,7 +37,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Adapters.ActivityItemAdapter;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
+import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
 
@@ -50,7 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener, InvestedTimeListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -65,6 +67,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @BindView(R.id.tv_total_time_invested) TextView ti_total;
 
+    private List<InvestedTimeItem> investedTimeItems;
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
     private ProgressDialog progressDialog;
@@ -84,7 +87,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private GoogleApiClient client;
     private GoogleApiClient mGoogleApiClient;
 
-    private List<ActivityItem> activitiesTwoLastWeeks;
     private BarChart histChart;
     private List<BarEntry> histEntries;
     private List<String> histLabels;
@@ -115,12 +117,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
 
         activityItems = new ArrayList<>();
+        investedTimeItems = new ArrayList<>();
 
         setRecycleViews();
 
-        activityItemsWeek = new ArrayList<>();
-        activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
+        // pega todos os Ti do firebase para o grafico do historico.
+        FirebaseController.getInstance().retrieveAllInvestedTimeItems(mDatabase, investedTimeItems, HomeActivity.this);
 
+        activityItemsWeek = new ArrayList<>();
 
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
@@ -284,7 +288,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         } else {
             adapter.update(activityItems);
             itensOfWeekAndGraph();
-            plotHistChart();
         }
     }
 
@@ -367,29 +370,33 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     }
 
     private void plotHistChart() {
+        int totalCurrentWeek = 0;
         int totalLastWeek = 0;
         int totalLastLastWeek = 0;
 
-        for (ActivityItem activityItem : activityItems) {
-            if (activityItem.isActivityLastWeek()) {
-                totalLastWeek += activityItem.getTotalInvestedTime();
-            } else if (activityItem.isActivityLastLastWeek()) {
-                totalLastLastWeek += activityItem.getTotalInvestedTime();
+        for (InvestedTimeItem investedTimeItem : investedTimeItems) {
+            if (investedTimeItem.isInvestedTimeWeek()) {
+                totalCurrentWeek += investedTimeItem.getTime();
+            } else if (investedTimeItem.isInvestedTimeLastWeek()) {
+                totalLastWeek += investedTimeItem.getTime();
+            } else if (investedTimeItem.isInvestedTimeLastLastWeek()) {
+                totalLastLastWeek += investedTimeItem.getTime();
             }
         }
 
-        histLabels.add("Semana Atual");
-        histEntries.add(new BarEntry(tempoTotal, 0));
-        histLabels.add("Semana Passada");
+        histLabels.add("Atual");
+        histEntries.add(new BarEntry(totalCurrentWeek, 0));
+        histLabels.add("Passada");
         histEntries.add(new BarEntry(totalLastWeek, 1));
-        histLabels.add("Semana Retrasada");
+        histLabels.add("Retrasada");
         histEntries.add(new BarEntry(totalLastLastWeek, 2));
 
-        BarDataSet barDataSet = new BarDataSet(histEntries, "Historico de Atividades");
+        BarDataSet barDataSet = new BarDataSet(histEntries, "Total de horas por semana");
         BarData barData = new BarData(histLabels, barDataSet);
 
         barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         histChart.setData(barData);
+        histChart.animateY(3000);
 
     }
 
@@ -405,5 +412,21 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             }
         }
         return null;
+    }
+
+    @Override
+    public void receiverTi(int statusCode, String resp) {
+
+    }
+
+    @Override
+    public void receiverTi(int statusCode, List<InvestedTimeItem> investedTimeItems, String resp) {
+        progressDialog.dismiss();
+        if (statusCode != 200) {
+            Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
+        } else {
+            adapter.update(activityItems);
+            plotHistChart();
+        }
     }
 }

@@ -28,6 +28,7 @@ import com.povmt.les.povmtprojetopiloto.R;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -165,6 +166,11 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
         }
 
         this.dismissDialog();
+    }
+
+    @Override
+    public void receiverTi(int statusCode, List<InvestedTimeItem> investedTimeItems, String resp) {
+        receiverTi(statusCode, resp);
     }
 
     public static interface OnCompleteListener {
