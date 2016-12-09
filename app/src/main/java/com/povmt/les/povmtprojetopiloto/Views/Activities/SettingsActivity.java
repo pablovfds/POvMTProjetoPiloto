@@ -4,7 +4,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
@@ -35,6 +34,7 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
 
     private int mHour, mMinute;
     private DatabaseReference mDatabase;
+    private boolean switchRTEnable = true;
 
     // TODO: 08/12/2016 Adicionar o alarme aqui ou você que sabe
 
@@ -55,18 +55,20 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
 
         FirebaseController.getInstance().getRemiderTimeOfUser(mDatabase, this);
 
-        FirebaseController.getInstance().checkUpdateInTimeInvested(mDatabase, this);
-
-        switchReminderTime.setChecked(true);
+        switchReminderTime.setChecked(switchRTEnable);
 
         switchReminderTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
+                switchRTEnable = bChecked;
                 if (bChecked) {
                     rl_view.setVisibility(View.VISIBLE);
                 } else {
                     rl_view.setVisibility(View.INVISIBLE);
                 }
+
+                FirebaseController.getInstance().updateReminderTimeOfUser(mDatabase,
+                        switchRTEnable, mHour, mMinute, SettingsActivity.this);
             }
         });
     }
@@ -85,7 +87,7 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
                         mMinute = minute;
 
                         FirebaseController.getInstance().updateReminderTimeOfUser(mDatabase,
-                                hourOfDay, minute, SettingsActivity.this);
+                                switchRTEnable, hourOfDay, minute, SettingsActivity.this);
                     }
                 }, mHour, mMinute, false);
         timePickerDialog.show();
@@ -94,6 +96,7 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
     @Override
     public boolean onSupportNavigateUp() {
         startActivity(new Intent(this, HomeActivity.class));
+        finish();
         return false;
     }
 
@@ -103,9 +106,11 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
     }
 
     @Override
-    public void receiverTi(int statusCode, Boolean resp) {
+    public void receiverTi(int statusCode, boolean resp) {
         //Aqui é recebido o valor da checagem se houve ou não atualizações no dia anterior
-        Toast.makeText(this, String.valueOf(resp), Toast.LENGTH_SHORT).show();
+        // Se houve cadastro ele retorna TRUE, c.c. ele retorna FALSE
+
+        Toast.makeText(this, "Houve cadastro no dia anterior? " + resp, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -119,14 +124,16 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
     }
 
     @Override
-    public void receiverUser(int statusCode, int mHour, int mMinute) {
+    public void receiverUser(int statusCode, int mHour, int mMinute, boolean enableRT) {
         if (statusCode != 200){
             Toast.makeText(this, "Erro ao tentar se conectar ao servidor", Toast.LENGTH_SHORT)
                     .show();
         } else {
+            this.switchRTEnable = enableRT;
             this.mHour = mHour;
             this.mMinute = mMinute;
             tv_reminder_time.setText(mHour + ":" + mMinute);
+            FirebaseController.getInstance().checkUpdateInTimeInvested(mDatabase, this);
         }
     }
 }

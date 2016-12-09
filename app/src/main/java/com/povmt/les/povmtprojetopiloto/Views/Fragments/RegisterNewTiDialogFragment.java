@@ -159,12 +159,12 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     }
 
     @Override
-    public void receiverTi(int statusCode, Boolean resp) {
+    public void receiverTi(int statusCode, boolean resp) {
 
     }
 
-    public static interface OnCompleteListener {
-        public abstract void onComplete(ActivityItem item);
+    public interface OnCompleteListener {
+        void onComplete(ActivityItem item);
     }
 
     @Override
