@@ -158,6 +158,11 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
         this.dismissDialog();
     }
 
+    @Override
+    public void receiverTi(int statusCode, Boolean resp) {
+
+    }
+
     public static interface OnCompleteListener {
         public abstract void onComplete(ActivityItem item);
     }

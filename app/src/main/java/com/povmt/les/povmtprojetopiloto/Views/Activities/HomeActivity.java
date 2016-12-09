@@ -51,14 +51,11 @@ import butterknife.OnClick;
 
 public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
-    @BindView(R.id.nav_view)
-    NavigationView navigationView;
+    @BindView(R.id.nav_view) NavigationView navigationView;
 
-    @BindView(R.id.drawer_layout)
-    DrawerLayout drawer;
+    @BindView(R.id.drawer_layout) DrawerLayout drawer;
 
     @BindView(R.id.fab_add_activity_item) FloatingActionButton fab;
 
@@ -94,9 +91,13 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         ButterKnife.bind(this);
 
-        setSupportActionBar(toolbar);
+        if (getSupportActionBar() == null){
+            setSupportActionBar(toolbar);
+        }
 
-        getSupportActionBar().setTitle("Atividades Recentes");
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle("Atividades Recentes");
+        }
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -126,8 +127,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         //Declaração das paradas pra gerar o gráficoHist
         histChart = (BarChart) findViewById(R.id.histchart);
-        entries = new ArrayList<BarEntry>();
-        labels = new ArrayList<String>();
+        entries = new ArrayList<>();
+        labels = new ArrayList<>();
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
@@ -201,12 +202,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             fab.setVisibility(View.INVISIBLE);
             ti_total.setText("Tempo investido : " + tempoTotal + " horas");
 
-        }  else if (id == R.id.nav_general_report) {
+        } else if (id == R.id.nav_general_report) {
             graphLayout.setVisibility(View.INVISIBLE);
             chartLayoutHist.setVisibility(View.VISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
 
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
             signOut();
@@ -226,7 +229,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
      * Carregar informaçoes do usuario logado
      */
     private void infoUser() {
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View header = navigationView.getHeaderView(0);
 
