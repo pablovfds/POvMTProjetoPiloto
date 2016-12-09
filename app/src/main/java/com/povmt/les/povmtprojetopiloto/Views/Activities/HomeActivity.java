@@ -2,6 +2,7 @@ package com.povmt.les.povmtprojetopiloto.Views.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -15,16 +16,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.auth.api.Auth;
@@ -38,6 +49,7 @@ import com.povmt.les.povmtprojetopiloto.Adapters.ActivityItemAdapter;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
+import com.povmt.les.povmtprojetopiloto.Models.Util;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
 
@@ -65,6 +77,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @BindView(R.id.tv_total_time_invested) TextView ti_total;
 
+
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
     private ProgressDialog progressDialog;
@@ -88,10 +101,18 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private List<String> labels;
     private LinearLayout chartLayoutHist;
 
+    private PieChart layoutPie;
+    private PieChart pieChart;
+    private ArrayList<Float> yDataPieChart = new ArrayList<Float>();
+    private String[] xDataPieChart = { "Baixa", "Média", "Alta" };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
+
+
 
         ButterKnife.bind(this);
 
@@ -120,10 +141,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
 
 
+
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
         BARENTRY = new ArrayList<>();
         BarEntryLabels = new ArrayList<String>();
+
 
         //Declaração das paradas pra gerar o gráficoHist
         histChart = (BarChart) findViewById(R.id.histchart);
@@ -137,6 +160,58 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         chartLayoutHist = (LinearLayout) findViewById(R.id.graph_layout_hist);
         chartLayoutHist.setVisibility(View.GONE);
+
+
+        //Configuração do PieChart
+//        layoutPie = (PieChart) findViewById(R.id.chart2);
+//        pieChart = new PieChart(this);
+        pieChart = (PieChart) findViewById(R.id.chart2);
+
+
+        pieChart.setUsePercentValues(true);
+        pieChart.setDescription("Tempo investido por prioridade");
+
+        pieChart.setDrawHoleEnabled(true);
+        pieChart.setHoleRadius(7);
+        pieChart.setTransparentCircleRadius(10);
+
+        pieChart.setRotationAngle(0);
+        pieChart.setRotationEnabled(true);
+
+        Log.d("Chegoooooooooou:", "aqui1" );
+
+        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+
+                Log.d("Chegoooooooooou:", "aqui2" );
+
+                if(e == null){
+                    return;
+
+
+                }else{
+                    Toast.makeText(HomeActivity.this, xDataPieChart[e.getXIndex()] + " = " +
+                            e.getVal() + "%", Toast.LENGTH_SHORT).show();
+                    Log.d("Chegoooooooooou:", "aqui3" );
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
+
+        Log.d("Chegoooooooooou:", "aqui4" );
+        addData();
+        Log.d("Chegoooooooooou:", "aqui5" );
+
+        Legend l = pieChart.getLegend();
+        l.setPosition(Legend.LegendPosition.RIGHT_OF_CHART);
+        l.setXEntrySpace(7);
+        l.setYEntrySpace(5);
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -190,6 +265,107 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void addData(){
+
+        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
+        ArrayList<String> xVals = new ArrayList<String>();
+
+        float sumTimeTotal = 0;
+        float sumTimeInvestPriorityMin = 0;
+        float sumTimeInvestPriorityMed = 0;
+        float sumTimeInvestPriorityMax = 0;
+
+        Log.d("Tamanho da lista:", String.valueOf(activityItems.size()));
+
+        for (int i = 0; i < activityItemsWeek.size() ; i++) {
+
+            if(activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_BAIXA){
+                sumTimeInvestPriorityMin += activityItemsWeek.get(i).getTotalInvestedTime();
+
+            }else if(activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_MEDIA){
+                sumTimeInvestPriorityMed += activityItemsWeek.get(i).getTotalInvestedTime();
+
+            }else{
+                sumTimeInvestPriorityMax += activityItemsWeek.get(i).getTotalInvestedTime();
+
+            }
+
+        }
+
+        sumTimeTotal = sumTimeInvestPriorityMax + sumTimeInvestPriorityMed + sumTimeInvestPriorityMin;
+
+
+        float percBaixaPrioridade = (sumTimeInvestPriorityMin * 100 ) / sumTimeTotal;
+        float percMediaPrioridade = (sumTimeInvestPriorityMed * 100) / sumTimeTotal;
+        float percAltaPrioridade = (sumTimeInvestPriorityMax * 100) / sumTimeTotal;
+
+        yDataPieChart.add(percBaixaPrioridade);
+        yDataPieChart.add(percMediaPrioridade);
+        yDataPieChart.add(percAltaPrioridade);
+
+
+        ArrayList<Float> newyDataPieChart = new ArrayList<Float>();
+
+        int n = yDataPieChart.size();
+        int k = 3; // número de opções (Prioridade baixa, média e alta)
+
+        for (int i = n-k; i<n; i++) {
+            newyDataPieChart.add(yDataPieChart.get(i));
+        }
+
+
+        for (int i = 0; i < newyDataPieChart.size() ; i++) {
+
+            if(newyDataPieChart.get(i) >= 0.0){
+                yVals1.add(new Entry(newyDataPieChart.get(i) , i));
+            }
+
+        }
+
+        for (int i = 0; i < xDataPieChart.length ; i++) {
+            xVals.add(xDataPieChart[i]);
+        }
+
+        //criando pie data set
+        PieDataSet dataSet = new PieDataSet(yVals1, "Prioridades");
+
+
+        dataSet.setSliceSpace(3);
+        dataSet.setSelectionShift(5);
+
+        //adicionando cores
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+
+        for (int c : ColorTemplate.VORDIPLOM_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.COLORFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.LIBERTY_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.PASTEL_COLORS)
+            colors.add(c);
+
+        colors.add(ColorTemplate.getHoloBlue());
+        dataSet.setColors(colors);
+
+        //instanciando pieData object agora
+        PieData data = new PieData(xVals, dataSet);
+        data.setValueFormatter(new PercentFormatter());
+        data.setValueTextSize(11f);
+        data.setValueTextColor(Color.GRAY);
+
+        pieChart.setData(data);
+        pieChart.highlightValues(null);
+        pieChart.invalidate();
+
     }
 
     @Override
@@ -283,6 +459,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             adapter.update(activityItems);
             itensOfWeekAndGraph();
             plotBarChart();
+            addData();
         }
     }
 
