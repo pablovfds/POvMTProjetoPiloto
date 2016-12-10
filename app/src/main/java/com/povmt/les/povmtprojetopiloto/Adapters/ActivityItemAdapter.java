@@ -3,11 +3,15 @@ package com.povmt.les.povmtprojetopiloto.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
@@ -15,6 +19,7 @@ import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,13 +44,21 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
     @Override
     public void onBindViewHolder(final ActivityItemViewHolder holder, final int position) {
         final ActivityItem activityItem = activityItems.get(position);
-        holder.position = position;
 
         String textResultTitle = "Titulo: " + activityItem.getTitle();
         String textResultUpdateAt = "Ultima atualização: " + activityItem.getUpdatedAt();
 
         holder.name.setText(textResultTitle);
         holder.updatedAt.setText(textResultUpdateAt);
+        String imageUrl = activityItem.getImageUrl();
+
+        try {
+            Bitmap image = decodeFromFirebaseBase64(imageUrl);
+            holder.photo.setImageBitmap(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -58,26 +71,30 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
         notifyDataSetChanged();
     }
 
+    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+    }
+
     class ActivityItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private int position;
         private TextView name;
         private TextView updatedAt;
+        private ImageView photo;
 
         ActivityItemViewHolder(View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.textViewTitle);
             updatedAt = (TextView) itemView.findViewById(R.id.textViewUpdatedAt);
+            photo = (ImageView) itemView.findViewById(R.id.iv_photo);
             itemView.setOnClickListener(this);
+            getAdapterPosition();
         }
 
         @Override
         public void onClick(View v) {
             Intent newIntent = new Intent(activity,ActivityItemDetailsActivity.class);
-            ActivityItem activityItem = activityItems.get(position);
-            Log.d("name", activityItem.getTitle());
-
-            newIntent.putExtra("activityItem", activityItems.get(position));
+            newIntent.putExtra("activityItem", activityItems.get(getAdapterPosition()));
             activity.startActivity(newIntent);
         }
     }

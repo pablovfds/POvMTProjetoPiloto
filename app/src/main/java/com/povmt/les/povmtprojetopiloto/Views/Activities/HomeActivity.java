@@ -253,10 +253,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @OnClick(R.id.fab_add_activity_item)
     public void addNewActivityItem() {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        RegisterNewActivityDialogFragment registerActivityDialog = new RegisterNewActivityDialogFragment();
-        registerActivityDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
-        registerActivityDialog.show(ft, "registerActivityDialog");
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        RegisterNewActivityDialogFragment registerActivityDialog = new RegisterNewActivityDialogFragment();
+//        registerActivityDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+//        registerActivityDialog.show(ft, "registerActivityDialog");
+        startActivity(new Intent(this, RegisterNewBusinessActivity.class));
     }
 
     @Override

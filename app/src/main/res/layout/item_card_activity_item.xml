@@ -21,15 +21,21 @@
         android:layout_alignParentTop="true"
         android:padding="8dp">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:id="@+id/iv_photo"
+            android:src="@drawable/camera_image"
+            android:scaleType="centerCrop"
+            android:layout_height="150dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textViewTitle"
             android:text="@string/prompt_card_title"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/iv_photo"
             android:layout_alignParentStart="true"
-            android:paddingTop="12px"
+            android:paddingTop="20px"
             />
 
         <TextView

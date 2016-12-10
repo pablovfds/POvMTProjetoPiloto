@@ -69,23 +69,6 @@ public class RegisterNewActivityDialogFragment extends DialogFragment implements
         this.dismiss();
     }
 
-    @OnClick(R.id.btn_create_activity)
-    public void createActivity(){
-        inputTitle.setError(null);
-        inputDescription.setError(null);
-        String titleActivity = inputTitle.getText().toString();
-        String descriptionActivity = inputDescription.getText().toString();
-
-        if(titleActivity.isEmpty()){
-            inputTitle.setError("Insira um título para a atividade");
-        } else if (descriptionActivity.isEmpty()){
-            inputDescription.setError("Insira uma descrição para a atividade");
-        } else {
-            ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity);
-
-            FirebaseController.getInstance().insertActivity(activityItem, mDatabase, this);
-        }
-    }
 
     @Override
     public void receiverActivity(int statusCode, ActivityItem activityItem, String resp) {
@@ -99,12 +82,6 @@ public class RegisterNewActivityDialogFragment extends DialogFragment implements
 
     @Override
     public void receiverActivity(int statusCode, String resp) {
-        if (statusCode != 200){
-            Toast.makeText(getActivity(), resp, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getActivity(), resp, Toast.LENGTH_SHORT).show();
-        }
-        this.dismissDialog();
-    }
 
+    }
 }

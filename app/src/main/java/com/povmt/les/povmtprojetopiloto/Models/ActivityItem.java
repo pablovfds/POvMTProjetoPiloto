@@ -16,6 +16,7 @@ import java.util.Map;
 @IgnoreExtraProperties
 public class ActivityItem implements Serializable, Comparable<ActivityItem>{
 
+    private String imageUrl;
     private String updatedAt;
     private String createdAt;
     private String description;
@@ -26,9 +27,10 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     public ActivityItem() {
     }
 
-    public ActivityItem(String title, String description) {
+    public ActivityItem(String title, String description, String imageUrl) {
         this.title = title;
         this.description = description;
+        this.imageUrl = imageUrl;
         Calendar cal = new GregorianCalendar();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setCalendar(cal);
@@ -75,6 +77,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public int getTotalInvestedTime() {

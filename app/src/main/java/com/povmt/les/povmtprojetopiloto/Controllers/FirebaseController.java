@@ -1,13 +1,20 @@
 package com.povmt.les.povmtprojetopiloto.Controllers;
 
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
@@ -30,11 +37,12 @@ public class FirebaseController {
         return controller;
     }
 
-    public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, final ActivityListener listener) {
+    public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase,
+                               final ActivityListener listener) {
 
         DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
         DatabaseReference activitiesRef = userRef.child(ACTIVITES);
-        DatabaseReference newActivityRef = activitiesRef.push();
+        final DatabaseReference newActivityRef = activitiesRef.push();
 
         newActivityRef.setValue(activityItem, new DatabaseReference.CompletionListener() {
             @Override
@@ -66,6 +74,7 @@ public class FirebaseController {
                     String description = (String) postSnapshot.child("description").getValue();
                     String createdAt = (String) postSnapshot.child("createdAt").getValue();
                     String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
+                    String imageUrl = (String) postSnapshot.child("imageUrl").getValue();
                     Object object = postSnapshot.child("totalInvestedTime").getValue();
 
                     int totalInvestedTime;
@@ -81,7 +90,7 @@ public class FirebaseController {
                         totalInvestedTime = 0;
                     }
 
-                    ActivityItem activityItem = new ActivityItem(title, description);
+                    ActivityItem activityItem = new ActivityItem(title, description, imageUrl);
 
                     activityItem.setCreatedAt(createdAt);
                     activityItem.setUpdatedAt(updatedAt);
