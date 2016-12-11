@@ -6,11 +6,9 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
@@ -22,6 +20,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private String title;
     private String uid;
     private int totalInvestedTime;
+    private int totalInvestedTimeWeek;
 
     public ActivityItem() {
     }
@@ -35,6 +34,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.createdAt = dateFormat.format(cal.getTime());
         this.updatedAt = this.createdAt;
         this.totalInvestedTime = 0;
+        this.totalInvestedTimeWeek = 0;
     }
 
     public String getUid() {
@@ -85,6 +85,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.totalInvestedTime = totalInvestedTime;
     }
 
+    public int getTotalInvestedTimeWeek() {
+        return totalInvestedTimeWeek;
+    }
+
+    public void setTotalInvestedTimeWeek(int totalInvestedTimeWeek) {
+        this.totalInvestedTimeWeek = totalInvestedTimeWeek;
+    }
+
     @Exclude
     public boolean isActivityWeek() {
 
@@ -107,46 +115,11 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     }
 
     @Exclude
-    public boolean isActivityLastLastWeek() {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(sdf.parse(updatedAt));
-            Calendar current = Calendar.getInstance();
-            int weekOfActivity = cal.get(Calendar.WEEK_OF_YEAR);
-
-            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 2) {
-                return true;
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Exclude
-    public boolean isActivityLastWeek() {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(sdf.parse(updatedAt));
-            Calendar current = Calendar.getInstance();
-            int weekOfActivity = cal.get(Calendar.WEEK_OF_YEAR);
-
-            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 1) {
-                return true;
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Exclude
     public void addNewInvestedTime(InvestedTimeItem investedTimeItem) {
         totalInvestedTime += investedTimeItem.getTime();
+        if (investedTimeItem.isInvestedTimeWeek()) {
+            totalInvestedTimeWeek += investedTimeItem.getTime();
+        }
     }
 
     @Exclude
@@ -158,6 +131,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         result.put("createdAt", createdAt);
         result.put("updatedAt", updatedAt);
         result.put("sumInvestedTime", totalInvestedTime);
+        result.put("sumInvestedTimeWeek", totalInvestedTimeWeek);
         return result;
     }
 
@@ -177,4 +151,5 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
             return 0;
         }
     }
+
 }

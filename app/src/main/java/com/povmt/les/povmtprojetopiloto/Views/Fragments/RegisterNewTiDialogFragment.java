@@ -136,7 +136,7 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             dateFormat.setCalendar(cal);
             activityItem.setUpdatedAt(createdAt);
-//            activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
+            //activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
             activityItem.addNewInvestedTime(tiItem);
 
             FirebaseController.getInstance()

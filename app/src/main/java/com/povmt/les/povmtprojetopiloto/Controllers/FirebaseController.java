@@ -65,8 +65,10 @@ public class FirebaseController {
                     String createdAt = (String) postSnapshot.child("createdAt").getValue();
                     String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
                     Object object = postSnapshot.child("totalInvestedTime").getValue();
+                    Object object2 = postSnapshot.child("totalInvestedTimeWeek").getValue();
 
                     int totalInvestedTime;
+                    int totalInvestedTimeWeek;
 
                     if (object != null) {
 
@@ -79,12 +81,24 @@ public class FirebaseController {
                         totalInvestedTime = 0;
                     }
 
+                    if (object2 != null) {
+
+                        if (object2 instanceof Long) {
+                            totalInvestedTimeWeek = ((Long) object2).intValue();
+                        } else {
+                            totalInvestedTimeWeek = Integer.valueOf((String) object2);
+                        }
+                    } else {
+                        totalInvestedTimeWeek = 0;
+                    }
+
                     ActivityItem activityItem = new ActivityItem(title, description);
 
                     activityItem.setCreatedAt(createdAt);
                     activityItem.setUpdatedAt(updatedAt);
                     activityItem.setUid(activityID);
                     activityItem.setTotalInvestedTime(totalInvestedTime);
+                    activityItem.setTotalInvestedTimeWeek(totalInvestedTimeWeek);
 
                     if (auxItem == null) {
                         activityItems.add(activityItem);
@@ -171,8 +185,10 @@ public class FirebaseController {
                 } else {
                     DatabaseReference activityItemUpdateAtRef = activitiesRef.child("updatedAt");
                     DatabaseReference activityItemTotalTitRef = activitiesRef.child("totalInvestedTime");
+                    DatabaseReference activityItemTotalTiWRef = activitiesRef.child("totalInvestedTimeWeek");
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
+                    activityItemTotalTiWRef.setValue(activityItem.getTotalInvestedTimeWeek());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
 
                 }

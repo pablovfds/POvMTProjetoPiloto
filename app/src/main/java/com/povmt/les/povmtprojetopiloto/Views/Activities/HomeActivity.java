@@ -90,7 +90,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private BarChart histChart;
     private List<BarEntry> histEntries;
     private List<String> histLabels;
-    private LinearLayout chartLayoutHist;
+    private LinearLayout histChartLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,8 +141,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
         graphLayout.setVisibility(View.GONE);
 
-        chartLayoutHist = (LinearLayout) findViewById(R.id.graph_layout_hist);
-        chartLayoutHist.setVisibility(View.GONE);
+        histChartLayout = (LinearLayout) findViewById(R.id.hist_graph_layout);
+        histChartLayout.setVisibility(View.GONE);
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -205,23 +205,25 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         if (id == R.id.nav_show_activities) {
             graphLayout.setVisibility(View.INVISIBLE);
-            chartLayoutHist.setVisibility(View.INVISIBLE);
+            histChartLayout.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_show_graph) {
 
             graphLayout.setVisibility(View.VISIBLE);
-            chartLayoutHist.setVisibility(View.INVISIBLE);
+            histChartLayout.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
+            getSupportActionBar().hide();
             ti_total.setText("Tempo investido : " + tempoTotal + " horas");
 
         }  else if (id == R.id.nav_general_report) {
             graphLayout.setVisibility(View.INVISIBLE);
-            chartLayoutHist.setVisibility(View.VISIBLE);
+            histChartLayout.setVisibility(View.VISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
+            getSupportActionBar().hide();
 
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
@@ -277,7 +279,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void receiverActivity(int statusCode, ActivityItem activityItem, String resp) {
-
+        receiverActivity(statusCode, resp);
     }
 
     @Override
@@ -293,7 +295,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void receiverActivity(int statusCode, String resp) {
-
+        receiverActivity(statusCode, resp);
     }
 
     /**
@@ -308,7 +310,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         for (ActivityItem activityItem : activityItems) {
 
-            if (activityItem.isActivityWeek()) {
+            if (activityItem.getTotalInvestedTimeWeek() > 0) {
                 ActivityItem item = listContainsActivity(activityItemsWeek, activityItem.getUid());
 
                 if (item == null) {
@@ -322,8 +324,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
 
                 BarEntryLabels.add(activityItem.getTitle());
-                BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTime(), cont));
-                tempoTotal += activityItem.getTotalInvestedTime();
+                BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTimeWeek(), cont));
+                tempoTotal += activityItem.getTotalInvestedTimeWeek();
 
             }
 
@@ -425,7 +427,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         if (statusCode != 200) {
             Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
         } else {
-            adapter.update(activityItems);
             plotHistChart();
         }
     }
