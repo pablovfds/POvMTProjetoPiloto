@@ -172,7 +172,7 @@ public class FirebaseController {
         });
     }
 
-    public void getRemiderTimeOfUser(DatabaseReference mDatabase, final UserInfoListener listener) {
+    public void getReminderTimeOfUser(DatabaseReference mDatabase, final UserInfoListener listener) {
         final DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
 
         userRef.addValueEventListener(new ValueEventListener() {

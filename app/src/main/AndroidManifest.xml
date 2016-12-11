@@ -8,6 +8,8 @@
 
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -41,6 +43,14 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".Views.Activities.SettingsActivity"></activity>
+
+        <receiver android:name=".Service.AlarmReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>
