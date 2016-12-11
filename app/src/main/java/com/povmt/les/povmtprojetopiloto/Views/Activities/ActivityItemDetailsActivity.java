@@ -10,12 +10,12 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewTiDialogFragment;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -49,13 +49,16 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
-        ProgressDialog progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
+        ProgressDialog progressDialog = ProgressDialog.show(this, getString(R.string.wait),
+                getString(R.string.loading_data));
 
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        if (getSupportActionBar() == null){
+            setSupportActionBar(toolbar);
+        }
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        }
 
         if (getIntent().getExtras() != null) {
             Bundle extras = getIntent().getExtras();
@@ -112,7 +115,13 @@ public class ActivityItemDetailsActivity extends AppCompatActivity implements
 
     @Override
     public void receiverImageUri(Uri uri) {
-        Picasso.with(this).load(uri).resize(1800, 1800).centerCrop().into(mActivityPhoto);
+        Glide
+                .with(this)
+                .load(uri)
+                .asBitmap()
+                .placeholder(R.drawable.camera_image)
+                .centerCrop()
+                .into(mActivityPhoto);
     }
 
     @Override

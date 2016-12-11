@@ -89,9 +89,13 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         ButterKnife.bind(this);
 
-        setSupportActionBar(toolbar);
+        if (getSupportActionBar() == null) {
+            setSupportActionBar(toolbar);
+        }
 
-        getSupportActionBar().setTitle("Atividades Recentes");
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle("Atividades Recentes");
+        }
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -103,14 +107,15 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         // Initialize Firebase Auth and Database Reference
         mAuth = FirebaseAuth.getInstance();
 
-        progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
+        progressDialog = ProgressDialog.show(this, getString(R.string.wait),
+                getString(R.string.loading_data));
 
         activityItems = new ArrayList<>();
 
         setRecycleViews();
 
         activityItemsWeek = new ArrayList<>();
-        activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
+        activitiesTwoLastWeeks = new ArrayList<>();
 
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);

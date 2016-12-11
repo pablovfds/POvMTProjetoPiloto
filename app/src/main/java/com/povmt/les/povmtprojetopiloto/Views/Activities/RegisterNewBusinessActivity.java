@@ -1,7 +1,6 @@
 package com.povmt.les.povmtprojetopiloto.Views.Activities;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,8 +19,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.kosalgeek.android.photoutil.CameraPhoto;
 import com.kosalgeek.android.photoutil.GalleryPhoto;
 import com.kosalgeek.android.photoutil.ImageLoader;
@@ -48,7 +45,6 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
     private static final int REQUEST_PERMISSION = 111;
     private static final int REQUEST_IMAGE_CAPTURE_GALLERY = 112;
     private static final int REQUEST_IMAGE_CAPTURE_CAMERA = 113;
-    private ProgressDialog progressDialog;
     private CameraPhoto cameraPhoto;
     private GalleryPhoto galleryPhoto;
 
@@ -60,7 +56,7 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
         ButterKnife.bind(this);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Nova atividade");
+            getSupportActionBar().setTitle(getString(R.string.title_register_new_activity));
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -70,15 +66,24 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
         cameraPhoto = new CameraPhoto(getApplicationContext());
         galleryPhoto = new GalleryPhoto(getApplicationContext());
 
+        requestPermissions();
+
+    }
+
+    private void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_PERMISSION);
+        }
     }
 
     @OnClick(R.id.fab_add_photo_activity)
     public void addActivityPhoto(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {
-                    Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_PERMISSION);
+            requestPermissions();
         } else {
             selectImage();
         }
@@ -114,7 +119,7 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
                 String photoPath = cameraPhoto.getPhotoPath();
                 try {
                     Bitmap bitmap = ImageLoader.init().from(photoPath).requestSize(512, 512).getBitmap();
-                    mImageActivity.setImageBitmap(bitmap);
+                    setImageInBitmap(bitmap);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -123,7 +128,7 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
                 String photoPath = galleryPhoto.getPath();
                 try {
                     Bitmap bitmap = ImageLoader.init().from(photoPath).requestSize(512, 512).getBitmap();
-                    mImageActivity.setImageBitmap(bitmap);
+                    setImageInBitmap(bitmap);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -178,9 +183,9 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
         String descriptionActivity = mInputDescription.getText().toString();
 
         if(titleActivity.isEmpty()){
-            mInputTitle.setError("Insira um título para a atividade");
+            mInputTitle.setError(getString(R.string.error_input_title_activity));
         } else if (descriptionActivity.isEmpty()){
-            mInputDescription.setError("Insira uma descrição para a atividade");
+            mInputDescription.setError(getString(R.string.error_input_description_activity));
         } else {
             ActivityItem activityItem = new ActivityItem(titleActivity, descriptionActivity);
 
@@ -227,5 +232,11 @@ public class RegisterNewBusinessActivity extends AppCompatActivity implements Ac
         });
 
         builder.show();
+    }
+
+    private void setImageInBitmap(Bitmap bitmap){
+        mImageActivity.setImageBitmap(bitmap);
+        mImageActivity.setAdjustViewBounds(true);
+        mImageActivity.setBackgroundColor(ContextCompat.getColor(this, R.color.cor_branca));
     }
 }

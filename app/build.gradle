@@ -53,6 +53,8 @@ dependencies {
 
     //Image library
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.android.support:support-v4:25.0.1'
 
     //Camera and Gallery library
     compile files('src/lib/PhotoUtil.jar')

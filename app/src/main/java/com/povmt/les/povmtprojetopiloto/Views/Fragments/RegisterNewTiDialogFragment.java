@@ -4,7 +4,6 @@ package com.povmt.les.povmtprojetopiloto.Views.Fragments;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
@@ -120,7 +119,7 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
         int investedTime = Integer.valueOf(inputTimeTi.getText().toString());
         String createdAt = inputDateTi.getText().toString();
 
-        if(investedTime <= 0.0){
+        if(investedTime <= 0.0 || investedTime > 24){
             inputTimeTi.setError("Insira um tempo investido válido.");
         } else if (createdAt.isEmpty()){
             inputDateTi.setError("Insira uma data para o tempo investido");

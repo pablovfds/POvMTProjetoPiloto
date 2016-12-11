@@ -15,4 +15,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="title_register_new_activity">Nova atividade</string>
+    <string name="error_input_title_activity">Insira um título para a atividade</string>
+    <string name="error_input_description_activity">Insira uma descrição para a atividade</string>
+    <string name="loading_data">Carregando dados</string>
+    <string name="wait">Aguarde</string>
 </resources>
