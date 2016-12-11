@@ -16,11 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +51,7 @@ import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.Util;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,10 +73,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     @BindView(R.id.drawer_layout)
     DrawerLayout drawer;
 
-    @BindView(R.id.fab_add_activity_item) FloatingActionButton fab;
+    @BindView(R.id.fab_add_activity_item)
+    FloatingActionButton fab;
 
-    @BindView(R.id.tv_total_time_invested) TextView ti_total;
-
+    @BindView(R.id.tv_total_time_invested)
+    TextView ti_total;
 
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
@@ -101,17 +102,15 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private List<String> labels;
     private LinearLayout chartLayoutHist;
 
-    private PieChart layoutPie;
     private PieChart pieChart;
     private ArrayList<Float> yDataPieChart = new ArrayList<Float>();
-    private String[] xDataPieChart = { "Baixa", "Média", "Alta" };
+    private String[] xDataPieChart = {"BAIXA", "MÉDIA", "ALTA"};
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
-
 
 
         ButterKnife.bind(this);
@@ -141,7 +140,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
 
 
-
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
         BARENTRY = new ArrayList<>();
@@ -163,13 +161,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
 
         //Configuração do PieChart
-//        layoutPie = (PieChart) findViewById(R.id.chart2);
-//        pieChart = new PieChart(this);
         pieChart = (PieChart) findViewById(R.id.chart2);
 
 
         pieChart.setUsePercentValues(true);
-        pieChart.setDescription("Tempo investido por prioridade");
+        pieChart.setDescription("TEMPO INVESTIDO POR PRIORIDADE");
 
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleRadius(7);
@@ -178,35 +174,22 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         pieChart.setRotationAngle(0);
         pieChart.setRotationEnabled(true);
 
-        Log.d("Chegoooooooooou:", "aqui1" );
-
         pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-
-                Log.d("Chegoooooooooou:", "aqui2" );
-
-                if(e == null){
+                if (e == null) {
                     return;
-
-
-                }else{
+                } else {
                     Toast.makeText(HomeActivity.this, xDataPieChart[e.getXIndex()] + " = " +
                             e.getVal() + "%", Toast.LENGTH_SHORT).show();
-                    Log.d("Chegoooooooooou:", "aqui3" );
                 }
-
             }
-
             @Override
             public void onNothingSelected() {
-
             }
         });
 
-        Log.d("Chegoooooooooou:", "aqui4" );
         addData();
-        Log.d("Chegoooooooooou:", "aqui5" );
 
         Legend l = pieChart.getLegend();
         l.setPosition(Legend.LegendPosition.RIGHT_OF_CHART);
@@ -246,12 +229,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     protected void onStart() {
-
         super.onStart();
         mGoogleApiClient.connect();
         mAuth.addAuthStateListener(mAuthListener);
-
-
     }
 
     @Override
@@ -267,37 +247,28 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         }
     }
 
-    private void addData(){
-
-        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        ArrayList<String> xVals = new ArrayList<String>();
+    private void addData() {
+        ArrayList<Entry> yVals1 = new ArrayList<>();
+        ArrayList<String> xVals = new ArrayList<>();
 
         float sumTimeTotal = 0;
         float sumTimeInvestPriorityMin = 0;
         float sumTimeInvestPriorityMed = 0;
         float sumTimeInvestPriorityMax = 0;
 
-        Log.d("Tamanho da lista:", String.valueOf(activityItems.size()));
-
-        for (int i = 0; i < activityItemsWeek.size() ; i++) {
-
-            if(activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_BAIXA){
+        for (int i = 0; i < activityItemsWeek.size(); i++) {
+            if (activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_BAIXA) {
                 sumTimeInvestPriorityMin += activityItemsWeek.get(i).getTotalInvestedTime();
-
-            }else if(activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_MEDIA){
+            } else if (activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_MEDIA) {
                 sumTimeInvestPriorityMed += activityItemsWeek.get(i).getTotalInvestedTime();
-
-            }else{
+            } else {
                 sumTimeInvestPriorityMax += activityItemsWeek.get(i).getTotalInvestedTime();
-
             }
-
         }
 
         sumTimeTotal = sumTimeInvestPriorityMax + sumTimeInvestPriorityMed + sumTimeInvestPriorityMin;
 
-
-        float percBaixaPrioridade = (sumTimeInvestPriorityMin * 100 ) / sumTimeTotal;
+        float percBaixaPrioridade = (sumTimeInvestPriorityMin * 100) / sumTimeTotal;
         float percMediaPrioridade = (sumTimeInvestPriorityMed * 100) / sumTimeTotal;
         float percAltaPrioridade = (sumTimeInvestPriorityMax * 100) / sumTimeTotal;
 
@@ -305,62 +276,42 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         yDataPieChart.add(percMediaPrioridade);
         yDataPieChart.add(percAltaPrioridade);
 
-
         ArrayList<Float> newyDataPieChart = new ArrayList<Float>();
 
         int n = yDataPieChart.size();
         int k = 3; // número de opções (Prioridade baixa, média e alta)
 
-        for (int i = n-k; i<n; i++) {
+        for (int i = n - k; i < n; i++) {
             newyDataPieChart.add(yDataPieChart.get(i));
         }
 
-
-        for (int i = 0; i < newyDataPieChart.size() ; i++) {
-
-            if(newyDataPieChart.get(i) >= 0.0){
-                yVals1.add(new Entry(newyDataPieChart.get(i) , i));
+        for (int i = 0; i < newyDataPieChart.size(); i++) {
+            if (newyDataPieChart.get(i) >= 0.0) {
+                yVals1.add(new Entry(newyDataPieChart.get(i), i));
             }
-
         }
 
-        for (int i = 0; i < xDataPieChart.length ; i++) {
+        for (int i = 0; i < xDataPieChart.length; i++) {
             xVals.add(xDataPieChart[i]);
         }
 
         //criando pie data set
-        PieDataSet dataSet = new PieDataSet(yVals1, "Prioridades");
-
-
+        PieDataSet dataSet = new PieDataSet(yVals1, "PRIORIDADES");
         dataSet.setSliceSpace(3);
         dataSet.setSelectionShift(5);
 
         //adicionando cores
-        ArrayList<Integer> colors = new ArrayList<Integer>();
+        ArrayList<Integer> colors = new ArrayList<>();
 
-        for (int c : ColorTemplate.VORDIPLOM_COLORS)
-            colors.add(c);
+        for(int c: Util.MY_COLORS_PIE_PRIORIDADE) colors.add(c);
 
-        for (int c : ColorTemplate.JOYFUL_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.COLORFUL_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.LIBERTY_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.PASTEL_COLORS)
-            colors.add(c);
-
-        colors.add(ColorTemplate.getHoloBlue());
         dataSet.setColors(colors);
 
         //instanciando pieData object agora
         PieData data = new PieData(xVals, dataSet);
         data.setValueFormatter(new PercentFormatter());
-        data.setValueTextSize(11f);
-        data.setValueTextColor(Color.GRAY);
+        data.setValueTextSize(12f);
+        data.setValueTextColor(Color.rgb(106,106,106));
 
         pieChart.setData(data);
         pieChart.highlightValues(null);
@@ -387,7 +338,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             fab.setVisibility(View.INVISIBLE);
             ti_total.setText("Tempo investido : " + tempoTotal + " horas");
 
-        }  else if (id == R.id.nav_general_report) {
+        } else if (id == R.id.nav_general_report) {
             graphLayout.setVisibility(View.INVISIBLE);
             chartLayoutHist.setVisibility(View.VISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
@@ -416,9 +367,13 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         navigationView.setNavigationItemSelectedListener(this);
         View header = navigationView.getHeaderView(0);
 
+        ImageView imageUser = (ImageView) header.findViewById(R.id.profile_image);
         TextView nameUser = (TextView) header.findViewById(R.id.nome);
         TextView emailUser = (TextView) header.findViewById(R.id.email);
 
+        Picasso.with(header.getContext())
+                .load(mAuth.getCurrentUser().getPhotoUrl())
+                .into(imageUser);
         nameUser.setText(mAuth.getCurrentUser().getDisplayName());
         emailUser.setText(mAuth.getCurrentUser().getEmail());
     }
@@ -518,15 +473,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         }
 
 
-
         ArrayList<BarEntry> listaBar = new ArrayList<>();
 
 
         int n = BARENTRY.size();
 
-        if (k <= n){
-            for (int i = n-k; i<n; i++) {
-              listaBar.add(BARENTRY.get(i));
+        if (k <= n) {
+            for (int i = n - k; i < n; i++) {
+                listaBar.add(BARENTRY.get(i));
             }
         }
 
