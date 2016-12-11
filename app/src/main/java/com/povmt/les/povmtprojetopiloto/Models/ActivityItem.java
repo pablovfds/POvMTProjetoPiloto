@@ -27,10 +27,9 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
     public ActivityItem() {
     }
 
-    public ActivityItem(String title, String description, String imageUrl) {
+    public ActivityItem(String title, String description) {
         this.title = title;
         this.description = description;
-        this.imageUrl = imageUrl;
         Calendar cal = new GregorianCalendar();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setCalendar(cal);
@@ -104,7 +103,6 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem>{
             cal.setTime(sdf.parse(updatedAt));
 
             if (cal.get(Calendar.WEEK_OF_YEAR) == Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)){
-                System.out.println("TRUE");
                 return true;
             }
 

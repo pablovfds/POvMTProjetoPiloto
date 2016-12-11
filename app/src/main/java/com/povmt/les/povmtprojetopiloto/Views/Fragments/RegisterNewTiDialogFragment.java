@@ -133,8 +133,7 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
             activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
             activityItem.addNewInvestedTime(tiItem);
 
-            FirebaseController.getInstance()
-                    .insertTi(activityItem, tiItem, mDatabase, this);
+            FirebaseController.getInstance().insertTi(activityItem, tiItem, this);
         }
     }
 

@@ -2,12 +2,11 @@ package com.povmt.les.povmtprojetopiloto.Views.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -33,13 +32,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Adapters.ActivityItemAdapter;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.R;
-import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,16 +46,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements ActivityListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
-    @BindView(R.id.nav_view)
-    NavigationView navigationView;
+    @BindView(R.id.nav_view) NavigationView navigationView;
 
-    @BindView(R.id.drawer_layout)
-    DrawerLayout drawer;
+    @BindView(R.id.drawer_layout) DrawerLayout drawer;
 
     @BindView(R.id.fab_add_activity_item) FloatingActionButton fab;
 
@@ -106,7 +101,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         navigationView.setNavigationItemSelectedListener(this);
 
         // Initialize Firebase Auth and Database Reference
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
         progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
@@ -117,7 +111,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         activityItemsWeek = new ArrayList<>();
         activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
-
 
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
@@ -243,7 +236,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         recyclerViewActivities.setHasFixedSize(true);
 
         progressDialog.show();
-        FirebaseController.getInstance().retrieveAllActivities(mDatabase, activityItems, HomeActivity.this);
+        FirebaseController.getInstance().retrieveAllActivities(activityItems, HomeActivity.this);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -253,10 +246,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @OnClick(R.id.fab_add_activity_item)
     public void addNewActivityItem() {
-//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//        RegisterNewActivityDialogFragment registerActivityDialog = new RegisterNewActivityDialogFragment();
-//        registerActivityDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
-//        registerActivityDialog.show(ft, "registerActivityDialog");
         startActivity(new Intent(this, RegisterNewBusinessActivity.class));
     }
 
@@ -278,8 +267,15 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     }
 
     @Override
-    public void receiverActivity(int statusCode, String resp) {
+    public void receiverImageUri(Uri uri) {
 
+    }
+
+    @Override
+    public void receiverActivity(int code, String s) {
+        if (code != 200) {
+            Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

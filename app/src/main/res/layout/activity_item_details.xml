@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_item_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity">
+    tools:context="com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity"
+    android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -20,32 +21,36 @@
             android:background="?attr/colorPrimary"
             app:tabGravity="fill"
             app:tabMode="fixed"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
 
-    <include
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_alignParentStart="true"
-        tools:layout_alignParentTop="true"
-        android:layout_alignParentTop="true"
-        layout="@layout/content_item_details"
-        android:id="@+id/content_item_details"
-        android:clipToPadding="false"
-        android:layout_marginTop="60dp"/>
+        android:layout_height="match_parent">
 
-    <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="16dp"
-        app:fabSize="normal"
-        app:backgroundTint="@color/colorPrimary"
-        android:src="@mipmap/ic_add_white_24dp"
-        app:layout_anchor="@id/content_item_details"
-        app:layout_anchorGravity="bottom|right|end"
-        android:id="@+id/fab_add_invested_time"/>
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_alignParentStart="true"
+            tools:layout_alignParentTop="true"
+            android:layout_alignParentTop="true"
+            layout="@layout/content_item_details"
+            android:id="@+id/content_item_details"
+            android:clipToPadding="false" />
 
-</android.support.design.widget.CoordinatorLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="16dp"
+            app:fabSize="normal"
+            app:backgroundTint="@color/colorPrimary"
+            android:src="@mipmap/ic_add_white_24dp"
+            app:layout_anchor="@id/content_item_details"
+            app:layout_anchorGravity="bottom|right|end"
+            android:id="@+id/fab_add_invested_time"/>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</LinearLayout>

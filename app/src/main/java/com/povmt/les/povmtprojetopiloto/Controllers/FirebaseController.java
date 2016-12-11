@@ -2,15 +2,14 @@ package com.povmt.les.povmtprojetopiloto.Controllers;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -28,17 +27,21 @@ public class FirebaseController {
     private static FirebaseAuth mAuth;
     private static final String USERS = "users";
     private static final String ACTIVITES = "activities";
+    private static final String PHOTOS = "Photos";
+    private static DatabaseReference mDatabase;
+    private static StorageReference mStorage;
 
     public static FirebaseController getInstance(){
         if (controller == null && mAuth == null){
             controller = new FirebaseController();
             mAuth = FirebaseAuth.getInstance();
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+            mStorage = FirebaseStorage.getInstance().getReference();
         }
         return controller;
     }
 
-    public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase,
-                               final ActivityListener listener) {
+    public void insertActivity(final ActivityItem activityItem, final ActivityListener listener) {
 
         DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
         DatabaseReference activitiesRef = userRef.child(ACTIVITES);
@@ -48,18 +51,39 @@ public class FirebaseController {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
-                    listener.receiverActivity(databaseError.getCode(), "Atividade não foi cadastrada");
+                    listener.receiverActivity(databaseError.getCode() , activityItem, "Atividade não foi cadastrada");
                 } else {
-                    listener.receiverActivity(200, "Atividade cadastrada com sucesso");
+                    activityItem.setUid(newActivityRef.getKey());
+                    listener.receiverActivity(200, activityItem, "Atividade cadastrada com sucesso");
                 }
             }
         });
     }
 
-    public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
+    public void saveImageOfActivityItem(final ActivityItem item, byte[] imageByteArray){
+        StorageReference imageRef = mStorage.child(PHOTOS).child(item.getUid());
+        DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+        final DatabaseReference activityRef = userRef.child(ACTIVITES)
+                .child(item.getUid());
+
+        UploadTask uploadTask = imageRef.putBytes(imageByteArray);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                activityRef.child("imageUrl").setValue(item.getUid());
+            }
+        });
+    }
+
+    public void retrieveAllActivities(final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
+        final DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
 
         activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -90,12 +114,13 @@ public class FirebaseController {
                         totalInvestedTime = 0;
                     }
 
-                    ActivityItem activityItem = new ActivityItem(title, description, imageUrl);
+                    ActivityItem activityItem = new ActivityItem(title, description);
 
                     activityItem.setCreatedAt(createdAt);
                     activityItem.setUpdatedAt(updatedAt);
                     activityItem.setUid(activityID);
                     activityItem.setTotalInvestedTime(totalInvestedTime);
+                    activityItem.setImageUrl(imageUrl);
 
                     if (auxItem == null) {
                         activityItems.add(activityItem);
@@ -109,13 +134,14 @@ public class FirebaseController {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                listener.receiverActivity(databaseError.getCode(), "Erro ao carregar a lista de atividades.");
+                listener.receiverActivity(databaseError.getCode(),
+                        "Erro ao carregar a lista de atividades.");
             }
         });
     }
 
     public void insertTi(final ActivityItem activityItem, final InvestedTimeItem investedTime,
-                         DatabaseReference mDatabase, final InvestedTimeListener listener) {
+                         final InvestedTimeListener listener) {
 
         DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
         final DatabaseReference activitiesRef = userRef.child("activities").child(activityItem.getUid());
@@ -136,6 +162,23 @@ public class FirebaseController {
                 }
             }
         });
+    }
+
+    public void retrieveActivityImage(String imageId, final ActivityListener listener){
+        StorageReference filePath = mStorage.child("Photos").child(imageId);
+
+        filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                listener.receiverImageUri(uri);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+
     }
 
     private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId){

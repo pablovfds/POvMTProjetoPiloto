@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
@@ -14,16 +16,22 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Activities.ActivityItemDetailsActivity;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapter.ActivityItemViewHolder>{
+public class ActivityItemAdapter extends RecyclerView.Adapter<ActivityItemAdapter.ActivityItemViewHolder> {
 
     private final LayoutInflater layoutInflater;
     private final Activity activity;
@@ -32,7 +40,8 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
     public ActivityItemAdapter(Context activity, List<ActivityItem> activityItems) {
         this.activityItems = activityItems;
         this.activity = (Activity) activity;
-        this.layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.layoutInflater = (LayoutInflater) activity
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -50,15 +59,10 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
 
         holder.name.setText(textResultTitle);
         holder.updatedAt.setText(textResultUpdateAt);
-        String imageUrl = activityItem.getImageUrl();
 
-        try {
-            Bitmap image = decodeFromFirebaseBase64(imageUrl);
-            holder.photo.setImageBitmap(image);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (activityItem.getImageUrl() != null) {
+            retrieveActivityImage(activityItem.getImageUrl(), holder.photo);
         }
-
     }
 
     @Override
@@ -71,9 +75,27 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
         notifyDataSetChanged();
     }
 
-    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
-        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+    private void retrieveActivityImage(String imageId, final ImageView imageView){
+        StorageReference mStorage = FirebaseStorage.getInstance().getReference();
+        StorageReference filePath = mStorage.child("Photos").child(imageId);
+
+        filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso
+                        .with(activity)
+                        .load(uri)
+                        .resize(6000, 2000)
+                        .centerInside()
+                        .into(imageView);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+
     }
 
     class ActivityItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -88,7 +110,6 @@ public class ActivityItemAdapter  extends RecyclerView.Adapter<ActivityItemAdapt
             updatedAt = (TextView) itemView.findViewById(R.id.textViewUpdatedAt);
             photo = (ImageView) itemView.findViewById(R.id.iv_photo);
             itemView.setOnClickListener(this);
-            getAdapterPosition();
         }
 
         @Override
