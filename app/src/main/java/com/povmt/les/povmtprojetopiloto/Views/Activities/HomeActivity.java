@@ -24,6 +24,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.BarData;
@@ -47,7 +50,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Adapters.ActivityItemAdapter;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
+import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
+import com.povmt.les.povmtprojetopiloto.Models.ChartAxisFormatters.MyXAxisValueFormatter;
+import com.povmt.les.povmtprojetopiloto.Models.ChartAxisFormatters.MyYAxisValueFormatter;
 import com.povmt.les.povmtprojetopiloto.Models.Util;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
@@ -62,7 +69,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener, InvestedTimeListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -79,6 +86,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     @BindView(R.id.tv_total_time_invested)
     TextView ti_total;
 
+    private List<InvestedTimeItem> investedTimeItems;
     private List<ActivityItem> activityItems;
     private ActivityItemAdapter adapter;
     private ProgressDialog progressDialog;
@@ -88,19 +96,21 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private ArrayList<BarEntry> BARENTRY;
     private ArrayList<String> BarEntryLabels;
     private LinearLayout graphLayout;
+
     private int tempoTotal = 0;
-    private DatabaseReference mDatabase;
     private RecyclerView recyclerViewActivities;
+
+    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private GoogleApiClient client;
     private GoogleApiClient mGoogleApiClient;
 
-    private List<ActivityItem> activitiesTwoLastWeeks;
     private BarChart histChart;
-    private List<BarEntry> entries;
-    private List<String> labels;
-    private LinearLayout chartLayoutHist;
+    private List<BarEntry> histEntries;
+    private LinearLayout histChartLayout;
+
+    private LineChart lineChart;
 
     private PieChart pieChart;
     private ArrayList<Float> yDataPieChart = new ArrayList<Float>();
@@ -111,7 +121,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
-
 
         ButterKnife.bind(this);
 
@@ -133,31 +142,34 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         progressDialog = ProgressDialog.show(this, "Aguarde", "Carregando dados");
 
         activityItems = new ArrayList<>();
+        investedTimeItems = new ArrayList<>();
 
         setRecycleViews();
 
-        activityItemsWeek = new ArrayList<>();
-        activitiesTwoLastWeeks = new ArrayList<ActivityItem>();
+        // pega todos os Ti do firebase para o grafico do historico.
+        FirebaseController.getInstance().retrieveAllInvestedTimeItems(mDatabase, investedTimeItems, HomeActivity.this);
 
+        activityItemsWeek = new ArrayList<>();
 
         //Declaração das paradas pra gerar o gráfico
         chart = (BarChart) findViewById(R.id.chart1);
         BARENTRY = new ArrayList<>();
         BarEntryLabels = new ArrayList<String>();
 
-
-        //Declaração das paradas pra gerar o gráficoHist
+        //Declaração das paradas pra gerar o gráfico do Historico
         histChart = (BarChart) findViewById(R.id.histchart);
-        entries = new ArrayList<BarEntry>();
-        labels = new ArrayList<String>();
+        histEntries = new ArrayList<BarEntry>();
+
+        // LineChart
+        lineChart = (LineChart) findViewById(R.id.lineChart);
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
         graphLayout = (LinearLayout) findViewById(R.id.graph_layout);
         graphLayout.setVisibility(View.GONE);
 
-        chartLayoutHist = (LinearLayout) findViewById(R.id.graph_layout_hist);
-        chartLayoutHist.setVisibility(View.GONE);
+        histChartLayout = (LinearLayout) findViewById(R.id.hist_graph_layout);
+        histChartLayout.setVisibility(View.GONE);
 
 
         //Configuração do PieChart
@@ -326,23 +338,25 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         if (id == R.id.nav_show_activities) {
             graphLayout.setVisibility(View.INVISIBLE);
-            chartLayoutHist.setVisibility(View.INVISIBLE);
+            histChartLayout.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_show_graph) {
 
             graphLayout.setVisibility(View.VISIBLE);
-            chartLayoutHist.setVisibility(View.INVISIBLE);
+            histChartLayout.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
-            ti_total.setText("Tempo investido : " + tempoTotal + " horas");
+            getSupportActionBar().hide();
+            ti_total.setText("Tempo total investido: " + tempoTotal + " horas");
 
         } else if (id == R.id.nav_general_report) {
             graphLayout.setVisibility(View.INVISIBLE);
-            chartLayoutHist.setVisibility(View.VISIBLE);
+            histChartLayout.setVisibility(View.VISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
+            getSupportActionBar().hide();
 
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
@@ -402,7 +416,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void receiverActivity(int statusCode, ActivityItem activityItem, String resp) {
-
+        receiverActivity(statusCode, resp);
     }
 
     @Override
@@ -420,7 +434,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void receiverActivity(int statusCode, String resp) {
-
+        receiverActivity(statusCode, resp);
     }
 
     /**
@@ -433,86 +447,93 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         tempoTotal = 0;
 
+        String[] values = new String[activityItems.size()];
+
         for (ActivityItem activityItem : activityItems) {
 
-            if (activityItem.isActivityWeek()) {
-                ActivityItem item = listContainsActivity(activityItemsWeek, activityItem.getUid());
-
-                if (item == null) {
-                    activityItemsWeek.add(activityItem);
-
-                } else {
-                    activityItemsWeek.remove(item);
-                    activityItemsWeek.add(activityItem);
-
-                }
-
-
-                BarEntryLabels.add(activityItem.getTitle());
-                BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTime(), cont));
-                tempoTotal += activityItem.getTotalInvestedTime();
-
+            if (activityItem.getTotalInvestedTimeWeek() > 0) {
+                values[cont] = activityItem.getTitle();
+                BARENTRY.add(new BarEntry(cont, activityItem.getTotalInvestedTimeWeek()));
+                tempoTotal += activityItem.getTotalInvestedTimeWeek();
+                cont++;
             }
-
-            cont++;
-
         }
 
-
-        ArrayList<String> listaLabel = new ArrayList(new HashSet(BarEntryLabels));
-//        BarEntryLabels = listaLabel;
-
-        int k = listaLabel.size();
-
-        ArrayList<String> listaLabel2 = new ArrayList<String>();
-        int m = BarEntryLabels.size();
-
-
-        for (int i = m - k; i < m; i++) {
-            listaLabel2.add(BarEntryLabels.get(i));
-        }
-
+        // formatação do eixo x
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setValueFormatter(new MyXAxisValueFormatter(values));
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
 
         ArrayList<BarEntry> listaBar = new ArrayList<>();
+        // formatação do eixo y (esquerda)
+        YAxis yAxis = chart.getAxisLeft();
+        yAxis.setValueFormatter(new MyYAxisValueFormatter());
+        yAxis.setGranularity(1f);
 
+        // ocultar eixo y (direita)
+        YAxis yRAxis = chart.getAxisRight();
+        yRAxis.setDrawLabels(false);
+        yRAxis.setDrawAxisLine(false);
+        yRAxis.setDrawGridLines(false);
 
-        int n = BARENTRY.size();
-
-        if (k <= n) {
-            for (int i = n - k; i < n; i++) {
-                listaBar.add(BARENTRY.get(i));
-            }
-        }
-
-        BarDataSet bardataset = new BarDataSet(listaBar, "Atividades");
-
-        BarData BARDATA = new BarData(listaLabel2, bardataset);
+        BarDataSet bardataset = new BarDataSet(BARENTRY, "Total de horas por semana");
+        BarData BARDATA = new BarData(bardataset);
 
         bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
 
+        BARDATA.setBarWidth(0.9f);
         chart.setData(BARDATA);
-
+        chart.setFitBars(true);
         chart.animateY(3000);
+        chart.invalidate();
     }
 
-    private void plotBarChart() {
-        int counter = 0;
-        for (ActivityItem activityitem : activitiesTwoLastWeeks) {
-            if (activityitem.isActivityTwoLastWeeks()) {
-                activitiesTwoLastWeeks.add(activityitem);
+    private void plotHistChart() {
+        int totalCurrentWeek = 0;
+        int totalLastWeek = 0;
+        int totalLastLastWeek = 0;
 
-                labels.add(activityitem.getTitle());
-                entries.add(new BarEntry(activityitem.getTotalInvestedTime(), counter));
+        for (InvestedTimeItem investedTimeItem : investedTimeItems) {
+            if (investedTimeItem.isInvestedTimeWeek()) {
+                totalCurrentWeek += investedTimeItem.getTime();
+            } else if (investedTimeItem.isInvestedTimeLastWeek()) {
+                totalLastWeek += investedTimeItem.getTime();
+            } else if (investedTimeItem.isInvestedTimeLastLastWeek()) {
+                totalLastLastWeek += investedTimeItem.getTime();
             }
-            counter++;
         }
 
-        BarDataSet dataset = new BarDataSet(entries, "Atividades");
-        BarData barData = new BarData(labels, dataset);
-        dataset.setColors(ColorTemplate.COLORFUL_COLORS);
-        histChart.setData(barData);
-        histChart.animateY(3000);
+        histEntries.add(new BarEntry(0f, totalCurrentWeek));
+        histEntries.add(new BarEntry(1f, totalLastWeek));
+        histEntries.add(new BarEntry(2f, totalLastLastWeek));
 
+        String[] values = new String[] { "Atual", "Passada", "Retrasada" };
+        XAxis xAxis = histChart.getXAxis();
+        xAxis.setValueFormatter(new MyXAxisValueFormatter(values));
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+
+        YAxis yAxis = histChart.getAxisLeft();
+        yAxis.setValueFormatter(new MyYAxisValueFormatter());
+        yAxis.setGranularity(1f);
+
+        YAxis yRAxis = histChart.getAxisRight();
+        yRAxis.setDrawLabels(false);
+        yRAxis.setDrawAxisLine(false);
+        yRAxis.setDrawGridLines(false);
+
+        BarDataSet barDataSet = new BarDataSet(histEntries, "Total de horas por semana");
+        BarData barData = new BarData(barDataSet);
+
+        barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        barData.setBarWidth(0.9f);
+        histChart.setData(barData);
+        histChart.setFitBars(true);
+        histChart.animateY(3000);
+        histChart.invalidate();
+
+        // LineChart
     }
 
     private void sortListWeek() {
@@ -527,5 +548,20 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             }
         }
         return null;
+    }
+
+    @Override
+    public void receiverTi(int statusCode, String resp) {
+
+    }
+
+    @Override
+    public void receiverTi(int statusCode, List<InvestedTimeItem> investedTimeItems, String resp) {
+        progressDialog.dismiss();
+        if (statusCode != 200) {
+            Toast.makeText(this, "Erro em carregar lista", Toast.LENGTH_SHORT).show();
+        } else {
+            plotHistChart();
+        }
     }
 }

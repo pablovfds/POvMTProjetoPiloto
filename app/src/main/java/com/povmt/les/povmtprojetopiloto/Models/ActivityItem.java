@@ -21,6 +21,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private String uid;
     private int prioridade;
     private int totalInvestedTime;
+    private int totalInvestedTimeWeek;
 
     public ActivityItem() {
     }
@@ -35,6 +36,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.updatedAt = this.createdAt;
         this.totalInvestedTime = 0;
         this.prioridade = prioridade;
+        this.totalInvestedTimeWeek = 0;
     }
 
     public String getUid() {
@@ -93,6 +95,14 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.totalInvestedTime = totalInvestedTime;
     }
 
+    public int getTotalInvestedTimeWeek() {
+        return totalInvestedTimeWeek;
+    }
+
+    public void setTotalInvestedTimeWeek(int totalInvestedTimeWeek) {
+        this.totalInvestedTimeWeek = totalInvestedTimeWeek;
+    }
+
     @Exclude
     public boolean isActivityWeek() {
 
@@ -114,31 +124,12 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         return false;
     }
 
-    /*
-    Verifica se a atividade é das ultimas duas semanas.
-    */
-    @Exclude
-    public boolean isActivityTwoLastWeeks() {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(sdf.parse(updatedAt));
-            Calendar current = Calendar.getInstance();
-            int weekOfActivity = cal.get(Calendar.WEEK_OF_YEAR);
-
-            if (weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 1 || weekOfActivity == current.get(Calendar.WEEK_OF_YEAR) - 2) {
-                return true;
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     @Exclude
     public void addNewInvestedTime(InvestedTimeItem investedTimeItem) {
         totalInvestedTime += investedTimeItem.getTime();
+        if (investedTimeItem.isInvestedTimeWeek()) {
+            totalInvestedTimeWeek += investedTimeItem.getTime();
+        }
     }
 
     @Exclude
@@ -151,6 +142,7 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         result.put("updatedAt", updatedAt);
         result.put("sumInvestedTime", totalInvestedTime);
         result.put("prioridade", prioridade);
+        result.put("sumInvestedTimeWeek", totalInvestedTimeWeek);
         return result;
     }
 

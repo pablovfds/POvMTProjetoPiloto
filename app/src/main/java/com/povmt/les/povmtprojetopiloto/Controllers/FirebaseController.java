@@ -19,7 +19,8 @@ public class FirebaseController {
     private static FirebaseController controller;
     private static FirebaseAuth mAuth;
     private static final String USERS = "users";
-    private static final String ACTIVITES = "activities";
+    private static final String ACTIVITIES = "activities";
+    private static final String INVESTED_TIME_LIST = "investedTimeList";
 
     public static FirebaseController getInstance() {
         if (controller == null && mAuth == null) {
@@ -32,7 +33,7 @@ public class FirebaseController {
     public void insertActivity(ActivityItem activityItem, DatabaseReference mDatabase, final ActivityListener listener) {
 
         DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
-        DatabaseReference activitiesRef = userRef.child(ACTIVITES);
+        DatabaseReference activitiesRef = userRef.child(ACTIVITIES);
         DatabaseReference newActivityRef = activitiesRef.push();
 
         newActivityRef.setValue(activityItem, new DatabaseReference.CompletionListener() {
@@ -50,7 +51,7 @@ public class FirebaseController {
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITIES);
 
         activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -66,9 +67,11 @@ public class FirebaseController {
                     String createdAt = (String) postSnapshot.child("createdAt").getValue();
                     String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
                     Object object = postSnapshot.child("totalInvestedTime").getValue();
+                    Object object2 = postSnapshot.child("totalInvestedTimeWeek").getValue();
                     Object objectPrioridade = postSnapshot.child("prioridade").getValue();
 
                     int totalInvestedTime;
+                    int totalInvestedTimeWeek;
 
                     if (object != null) {
 
@@ -84,11 +87,22 @@ public class FirebaseController {
                     int prioridade = Integer.parseInt(String.valueOf(objectPrioridade));
 
                     ActivityItem activityItem = new ActivityItem(title, description, prioridade);
+                    if (object2 != null) {
+
+                        if (object2 instanceof Long) {
+                            totalInvestedTimeWeek = ((Long) object2).intValue();
+                        } else {
+                            totalInvestedTimeWeek = Integer.valueOf((String) object2);
+                        }
+                    } else {
+                        totalInvestedTimeWeek = 0;
+                    }
 
                     activityItem.setCreatedAt(createdAt);
                     activityItem.setUpdatedAt(updatedAt);
                     activityItem.setUid(activityID);
                     activityItem.setTotalInvestedTime(totalInvestedTime);
+                    activityItem.setTotalInvestedTimeWeek(totalInvestedTimeWeek);
 
                     if (auxItem == null) {
                         activityItems.add(activityItem);
@@ -107,6 +121,58 @@ public class FirebaseController {
         });
     }
 
+    public void retrieveAllInvestedTimeItems(DatabaseReference mDatabase, final List<InvestedTimeItem> investedTimeItems,
+                                         final InvestedTimeListener listener) {
+
+        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITIES);
+
+        activitiesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+
+                    for (DataSnapshot snapshot : postSnapshot.child(INVESTED_TIME_LIST).getChildren()) {
+
+                        String investedTimeItemId = snapshot.getKey();
+
+                        InvestedTimeItem auxItem = listContainsInvestedTimeItem(investedTimeItems, investedTimeItemId);
+
+                        String createdAt = (String) snapshot.child("createdAt").getValue();
+                        Object object = (Object) snapshot.child("time").getValue();
+
+                        int time;
+
+                        if (object != null) {
+                            if (object instanceof Long) {
+                                time = ((Long) object).intValue();
+                            } else {
+                                time = ((Double) object).intValue();
+                            }
+                        } else {
+                            time = 0;
+                        }
+
+                        InvestedTimeItem investedTimeItem = new InvestedTimeItem(time, createdAt);
+
+                        investedTimeItem.setUid(investedTimeItemId);
+
+                        if (auxItem != null) {
+                            investedTimeItems.remove(auxItem);
+                        }
+                        investedTimeItems.add(investedTimeItem);
+                    }
+                }
+                listener.receiverTi(200, investedTimeItems, "Sucesso ao carregar TIs");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                listener.receiverTi(databaseError.getCode(), "Erro ao carregar TIs");
+            }
+        });
+
+    }
+
     public void insertTi(final ActivityItem activityItem, final InvestedTimeItem investedTime,
                          DatabaseReference mDatabase, final InvestedTimeListener listener) {
 
@@ -123,8 +189,10 @@ public class FirebaseController {
                 } else {
                     DatabaseReference activityItemUpdateAtRef = activitiesRef.child("updatedAt");
                     DatabaseReference activityItemTotalTitRef = activitiesRef.child("totalInvestedTime");
+                    DatabaseReference activityItemTotalTiWRef = activitiesRef.child("totalInvestedTimeWeek");
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
+                    activityItemTotalTiWRef.setValue(activityItem.getTotalInvestedTimeWeek());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
 
                 }
@@ -136,6 +204,17 @@ public class FirebaseController {
         for (int i = 0; i < activityItems.size(); i++) {
             ActivityItem item = activityItems.get(i);
             if (item.getUid().equals(activityId)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private InvestedTimeItem listContainsInvestedTimeItem(List<InvestedTimeItem> investedTimeItems,
+                                                          String investedTimeItemId) {
+        for (int i = 0; i < investedTimeItems.size(); i++) {
+            InvestedTimeItem item = investedTimeItems.get(i);
+            if (item.getUid().equals(investedTimeItemId)) {
                 return item;
             }
         }

@@ -65,7 +65,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/graph_layout_hist"
+        android:id="@+id/hist_graph_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -74,10 +74,12 @@
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/histchart"
             android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:layout_weight="1.8" />
-
+            android:layout_height="245dp"
+            android:layout_margin="5dp" />
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

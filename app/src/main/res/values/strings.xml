@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">POvMT</string>
-    <string name="app_name2">Pra Onde</string>
+    <string name="app_name2">Para Onde</string>
     <string name="app_name3">Vai Meu</string>
-    <string name="app_name4">Tempo ?</string>
+    <string name="app_name4">Tempo?</string>
+    <string name="app_description">LES - UFCG 2016.2</string>
     <string name="hint_activity_title">Titulo</string>
     <string name="hint_activity_description">Descrição</string>
     <string name="hint_activity_invested_time">Tempo investido (em Horas)</string>
