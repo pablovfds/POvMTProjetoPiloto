@@ -35,6 +35,7 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
@@ -177,7 +178,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
 
         pieChart.setUsePercentValues(true);
-        pieChart.setDescription("TEMPO INVESTIDO POR PRIORIDADE");
+        //pieChart.setDescription("TEMPO INVESTIDO POR PRIORIDADE");
 
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleRadius(7);
@@ -188,14 +189,15 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
-            public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+            public void onValueSelected(Entry e, Highlight h) {
                 if (e == null) {
                     return;
                 } else {
-                    Toast.makeText(HomeActivity.this, xDataPieChart[e.getXIndex()] + " = " +
-                            e.getVal() + "%", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, xDataPieChart[(int) e.getX()] + " = " +
+                            ((PieEntry) e).getValue() + "%", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onNothingSelected() {
             }
@@ -260,8 +262,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     }
 
     private void addData() {
-        ArrayList<Entry> yVals1 = new ArrayList<>();
-        ArrayList<String> xVals = new ArrayList<>();
+        List<PieEntry> yVals1 = new ArrayList<>();
+        List<String> xVals = new ArrayList<>();
 
         float sumTimeTotal = 0;
         float sumTimeInvestPriorityMin = 0;
@@ -299,7 +301,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         for (int i = 0; i < newyDataPieChart.size(); i++) {
             if (newyDataPieChart.get(i) >= 0.0) {
-                yVals1.add(new Entry(newyDataPieChart.get(i), i));
+                yVals1.add(new PieEntry(newyDataPieChart.get(i), i));
             }
         }
 
@@ -320,7 +322,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         dataSet.setColors(colors);
 
         //instanciando pieData object agora
-        PieData data = new PieData(xVals, dataSet);
+        PieData data = new PieData(dataSet);
         data.setValueFormatter(new PercentFormatter());
         data.setValueTextSize(12f);
         data.setValueTextColor(Color.rgb(106,106,106));
@@ -427,7 +429,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         } else {
             adapter.update(activityItems);
             itensOfWeekAndGraph();
-            plotBarChart();
+            plotHistChart();
             addData();
         }
     }
