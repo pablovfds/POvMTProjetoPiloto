@@ -22,6 +22,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -40,6 +43,8 @@ import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
+import com.povmt.les.povmtprojetopiloto.Models.ChartAxisFormatters.MyXAxisValueFormatter;
+import com.povmt.les.povmtprojetopiloto.Models.ChartAxisFormatters.MyYAxisValueFormatter;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Views.Fragments.RegisterNewActivityDialogFragment;
 
@@ -89,8 +94,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     private BarChart histChart;
     private List<BarEntry> histEntries;
-    private List<String> histLabels;
     private LinearLayout histChartLayout;
+
+    private LineChart lineChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +140,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         //Declaração das paradas pra gerar o gráfico do Historico
         histChart = (BarChart) findViewById(R.id.histchart);
         histEntries = new ArrayList<BarEntry>();
-        histLabels = new ArrayList<String>();
+
+        // LineChart
+        //lineChart = (LineChart) findViewById(R.id.lineChart);
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
@@ -216,7 +224,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
             getSupportActionBar().hide();
-            ti_total.setText("Tempo investido : " + tempoTotal + " horas");
+            ti_total.setText("Tempo total investido: " + tempoTotal + " horas");
 
         }  else if (id == R.id.nav_general_report) {
             graphLayout.setVisibility(View.INVISIBLE);
@@ -308,67 +316,45 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         tempoTotal = 0;
 
+        String[] values = new String[activityItems.size()];
+
         for (ActivityItem activityItem : activityItems) {
 
             if (activityItem.getTotalInvestedTimeWeek() > 0) {
-                ActivityItem item = listContainsActivity(activityItemsWeek, activityItem.getUid());
-
-                if (item == null) {
-                    activityItemsWeek.add(activityItem);
-
-                } else {
-                    activityItemsWeek.remove(item);
-                    activityItemsWeek.add(activityItem);
-
-                }
-
-
-                BarEntryLabels.add(activityItem.getTitle());
-                BARENTRY.add(new BarEntry(activityItem.getTotalInvestedTimeWeek(), cont));
+                values[cont] = activityItem.getTitle();
+                BARENTRY.add(new BarEntry(cont, activityItem.getTotalInvestedTimeWeek()));
                 tempoTotal += activityItem.getTotalInvestedTimeWeek();
-
-            }
-
-            cont++;
-
-        }
-
-
-        ArrayList<String> listaLabel = new ArrayList(new HashSet(BarEntryLabels));
-//        BarEntryLabels = listaLabel;
-
-        int k = listaLabel.size();
-
-        ArrayList<String> listaLabel2 = new ArrayList<String>();
-        int m = BarEntryLabels.size();
-
-
-        for (int i = m - k; i < m; i++) {
-            listaLabel2.add(BarEntryLabels.get(i));
-        }
-
-
-
-        ArrayList<BarEntry> listaBar = new ArrayList<>();
-
-
-        int n = BARENTRY.size();
-
-        if (k <= n){
-            for (int i = n-k; i<n; i++) {
-              listaBar.add(BARENTRY.get(i));
+                cont++;
             }
         }
 
-        BarDataSet bardataset = new BarDataSet(listaBar, "Atividades");
+        // formatação do eixo x
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setValueFormatter(new MyXAxisValueFormatter(values));
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
 
-        BarData BARDATA = new BarData(listaLabel2, bardataset);
+        // formatação do eixo y (esquerda)
+        YAxis yAxis = chart.getAxisLeft();
+        yAxis.setValueFormatter(new MyYAxisValueFormatter());
+        yAxis.setGranularity(1f);
+
+        // ocultar eixo y (direita)
+        YAxis yRAxis = chart.getAxisRight();
+        yRAxis.setDrawLabels(false);
+        yRAxis.setDrawAxisLine(false);
+        yRAxis.setDrawGridLines(false);
+
+        BarDataSet bardataset = new BarDataSet(BARENTRY, "Total de horas por semana");
+        BarData BARDATA = new BarData(bardataset);
 
         bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
 
+        BARDATA.setBarWidth(0.9f);
         chart.setData(BARDATA);
-
+        chart.setFitBars(true);
         chart.animateY(3000);
+        chart.invalidate();
     }
 
     private void plotHistChart() {
@@ -386,19 +372,34 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             }
         }
 
-        histLabels.add("Atual");
-        histEntries.add(new BarEntry(totalCurrentWeek, 0));
-        histLabels.add("Passada");
-        histEntries.add(new BarEntry(totalLastWeek, 1));
-        histLabels.add("Retrasada");
-        histEntries.add(new BarEntry(totalLastLastWeek, 2));
+        histEntries.add(new BarEntry(0f, totalCurrentWeek));
+        histEntries.add(new BarEntry(1f, totalLastWeek));
+        histEntries.add(new BarEntry(2f, totalLastLastWeek));
+
+        String[] values = new String[] { "Atual", "Passada", "Retrasada" };
+        XAxis xAxis = histChart.getXAxis();
+        xAxis.setValueFormatter(new MyXAxisValueFormatter(values));
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+
+        YAxis yAxis = histChart.getAxisLeft();
+        yAxis.setValueFormatter(new MyYAxisValueFormatter());
+        yAxis.setGranularity(1f);
+
+        YAxis yRAxis = histChart.getAxisRight();
+        yRAxis.setDrawLabels(false);
+        yRAxis.setDrawAxisLine(false);
+        yRAxis.setDrawGridLines(false);
 
         BarDataSet barDataSet = new BarDataSet(histEntries, "Total de horas por semana");
-        BarData barData = new BarData(histLabels, barDataSet);
+        BarData barData = new BarData(barDataSet);
 
         barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        barData.setBarWidth(0.9f);
         histChart.setData(barData);
+        histChart.setFitBars(true);
         histChart.animateY(3000);
+        histChart.invalidate();
 
     }
 

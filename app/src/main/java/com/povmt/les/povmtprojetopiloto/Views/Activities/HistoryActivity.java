@@ -100,11 +100,11 @@ public class HistoryActivity extends AppCompatActivity implements InvestedTimeLi
         histEntries.add(new BarEntry(totalLastLastWeek, 2));
 
         BarDataSet barDataSet = new BarDataSet(histEntries, "Total de horas por semana");
-        BarData barData = new BarData(histLabels, barDataSet);
+        /*BarData barData = new BarData(histLabels, barDataSet);
 
         barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         histChart.setData(barData);
-        histChart.animateY(3000);
+        histChart.animateY(3000);*/
     }
 
     @Override
