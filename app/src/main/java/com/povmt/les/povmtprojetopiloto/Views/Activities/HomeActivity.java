@@ -142,7 +142,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         histEntries = new ArrayList<BarEntry>();
 
         // LineChart
-        //lineChart = (LineChart) findViewById(R.id.lineChart);
+        lineChart = (LineChart) findViewById(R.id.lineChart);
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
@@ -401,6 +401,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         histChart.animateY(3000);
         histChart.invalidate();
 
+        // LineChart
     }
 
     private void sortListWeek() {
