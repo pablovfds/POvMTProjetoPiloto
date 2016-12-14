@@ -1,18 +1,21 @@
 package com.povmt.les.povmtprojetopiloto.Controllers;
 
-import android.util.Log;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.ActivityListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
+import com.povmt.les.povmtprojetopiloto.Interfaces.UserInfoListener;
 import com.povmt.les.povmtprojetopiloto.Models.ActivityItem;
 import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class FirebaseController {
@@ -21,6 +24,9 @@ public class FirebaseController {
     private static FirebaseAuth mAuth;
     private static final String USERS = "users";
     private static final String ACTIVITES = "activities";
+
+    private static final int DEFAULT_HOUR_REMINDER_TIME = 14;
+    private static final int DEFAULT_MINUTE_REMINDER_TIME = 10;
 
     public static FirebaseController getInstance(){
         if (controller == null && mAuth == null){
@@ -40,7 +46,7 @@ public class FirebaseController {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
-                    listener.receiverActivity(databaseError.getCode(), "Atividade não foi cadastrada");
+                    listener.receiverActivity(databaseError.getCode(), "Erro ao cadastrar atividade");
                 } else {
                     listener.receiverActivity(200, "Atividade cadastrada com sucesso");
                 }
@@ -51,7 +57,8 @@ public class FirebaseController {
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITES);
+        DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+        DatabaseReference activitiesRef = userRef.child(ACTIVITES);
 
         activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -71,7 +78,6 @@ public class FirebaseController {
                     int totalInvestedTime;
 
                     if (object != null) {
-
                         if (object instanceof Long) {
                             totalInvestedTime = ((Long) object).intValue();
                         } else {
@@ -123,10 +129,107 @@ public class FirebaseController {
                     DatabaseReference activityItemTotalTitRef =  activitiesRef.child("totalInvestedTime");
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
-                    listener.receiverTi(200, "TI cadastrada com sucesso");
+                    listener.receiverTi(200, "TI cadastrado com sucesso");
                 }
             }
         });
+    }
+
+    public void checkUpdateInTimeInvested(DatabaseReference mDatabase, final InvestedTimeListener listener){
+        DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+        final DatabaseReference activitiesRef = userRef.child("activities");
+
+        activitiesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
+                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+
+                    Date date = null;
+
+                    try {
+                        date = df.parse(updatedAt);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    Calendar calUpdateAt = Calendar.getInstance();
+                    calUpdateAt.setTime(date);
+
+                    Calendar calYesterdayDate = Calendar.getInstance();
+                    calYesterdayDate.add(Calendar.DATE, -1);
+
+                    boolean resp = calYesterdayDate.compareTo(calUpdateAt) <= 0;
+
+                    listener.receiverTi(200, resp);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                listener.receiverTi(400, false);
+            }
+        });
+    }
+
+    public void getReminderTimeOfUser(DatabaseReference mDatabase, final UserInfoListener listener) {
+        final DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DataSnapshot reminderTimeDS = dataSnapshot.child("reminder_time");
+
+                int mHour = DEFAULT_HOUR_REMINDER_TIME, mMinute = DEFAULT_MINUTE_REMINDER_TIME;
+                boolean enableRT = true;
+
+                if (reminderTimeDS.getValue() == null){
+                    DatabaseReference reminderTimeRef = userRef.child("reminder_time");
+                    reminderTimeRef.child("Hour").setValue(mHour);
+                    reminderTimeRef.child("Minute").setValue(mMinute);
+                    reminderTimeRef.child("EnableReminderTime").setValue(true);
+                } else {
+                    Object objHour = reminderTimeDS.child("Hour").getValue();
+                    Object objMinute = reminderTimeDS.child("Minute").getValue();
+                    Object objEnableRT = reminderTimeDS.child("EnableReminderTime").getValue();
+
+                    enableRT = objEnableRT == null || (boolean) objEnableRT;
+
+                    if (objHour != null && objMinute != null) {
+                        if (objHour instanceof Long && objMinute instanceof Long) {
+                            mHour = ((Long) objHour).intValue();
+                            mMinute = ((Long) objMinute).intValue();
+                        } else {
+                            mHour = (int) objHour;
+                            mMinute = (int) objMinute;
+                        }
+                    } else {
+                        mHour = 14;
+                        mMinute = 10;
+                    }
+                }
+
+                listener.receiverUser(200, mHour, mMinute, enableRT);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                listener.receiverUser(databaseError.getCode(), databaseError.getMessage());
+            }
+        });
+    }
+
+    public void updateReminderTimeOfUser(DatabaseReference mDatabase,boolean enableReminderTime
+            ,int mHour, int mMinute, final UserInfoListener listener){
+
+        final DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
+        DatabaseReference reminderTimeRef = userRef.child("reminder_time");
+
+        reminderTimeRef.child("Hour").setValue(mHour);
+        reminderTimeRef.child("Minute").setValue(mMinute);
+        reminderTimeRef.child("EnableReminderTime").setValue(enableReminderTime);
+
+        listener.receiverUser(200, "Horario do lembrete atualizado com sucesso");
     }
 
     private ActivityItem listContainsActivity(List<ActivityItem> activityItems, String activityId){
