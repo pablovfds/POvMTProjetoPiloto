@@ -43,14 +43,12 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
     private DatabaseReference mDatabase;
     private boolean switchRTEnable = true;
 
-    Calendar calendar;
+    private Calendar calendar;
     private PendingIntent pendingIntent;
-
-    // TODO: 08/12/2016 Adicionar o alarme aqui ou você que sabe
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
@@ -64,26 +62,6 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         FirebaseController.getInstance().getReminderTimeOfUser(mDatabase, this);
-
-
-
-        switchReminderTime.setChecked(switchRTEnable);
-
-        switchReminderTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
-                switchRTEnable = bChecked;
-                if (bChecked) {
-                    rl_view.setVisibility(View.VISIBLE);
-                } else {
-                    rl_view.setVisibility(View.INVISIBLE);
-                }
-
-                FirebaseController.getInstance().updateReminderTimeOfUser(mDatabase,
-                        switchRTEnable, mHour, mMinute, SettingsActivity.this);
-
-            }
-        });
 
         /* Retrieve a PendingIntent that will perform a broadcast */
         Intent alarmIntent = new Intent(SettingsActivity.this, AlarmReceiver.class);
@@ -120,9 +98,8 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
     }
 
     @Override
-    public void receiverTi(int statusCode, String resp) {
+    public void receiverTi(int statusCode, String resp) {}
 
-    }
 
     @Override
     public void receiverTi(int statusCode, boolean resp) {
@@ -130,12 +107,11 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
         // Se houve cadastro ele retorna TRUE, c.c. ele retorna FALSE
         Log.e("RECEIVE TI", "ti no dia anterior? " + resp + " enable? " + switchRTEnable);
         if(resp == false && switchRTEnable){
+            Log.e("start", "start" + switchRTEnable);
             startAlarm();
         }else {
             cancelAlarm();
         }
-
-       // Toast.makeText(this, "Houve cadastro no dia anterior? " + resp, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -150,6 +126,8 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
 
     @Override
     public void receiverUser(int statusCode, int mHour, int mMinute, boolean enableRT) {
+
+        setSwitchReminder(enableRT, mHour, mMinute);
         if (statusCode != 200){
             Toast.makeText(this, "Erro ao tentar se conectar ao servidor", Toast.LENGTH_SHORT)
                     .show();
@@ -162,7 +140,28 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
         }
     }
 
+
+    private void setSwitchReminder(final boolean switchStatus, final int hour, final int minute){
+
+        switchReminderTime.setChecked(switchStatus);
+        switchReminderTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
+                switchRTEnable = bChecked;
+                if (switchRTEnable) {
+                    rl_view.setVisibility(View.VISIBLE);
+                } else {
+                    rl_view.setVisibility(View.INVISIBLE);
+                }
+                FirebaseController.getInstance().updateReminderTimeOfUser(mDatabase,
+                        switchRTEnable, hour, minute, SettingsActivity.this);
+
+            }
+        });
+    }
+
     public void startAlarm() {
+
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -170,10 +169,12 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
         calendar.set(Calendar.MINUTE, this.mMinute);
 
         /* Repeating on every 24 hours interval */
+        if(calendar.getTimeInMillis() >= System.currentTimeMillis()){
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, pendingIntent);
+            Toast.makeText(this, "Alarm started!", Toast.LENGTH_SHORT).show();
+        }
 
-         manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                 AlarmManager.INTERVAL_DAY, pendingIntent);
-         Toast.makeText(this, "Alarm started!", Toast.LENGTH_SHORT).show();
 
     }
 

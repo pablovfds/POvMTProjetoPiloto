@@ -19,9 +19,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         Log.e("on receive", "receiver");
-        Toast.makeText(context, "I'm running", Toast.LENGTH_SHORT).show();
         addNotification(context);
 
     }
@@ -43,7 +41,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(contentIntent);
 
-        // Add as notification
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(0, builder.build());
     }
