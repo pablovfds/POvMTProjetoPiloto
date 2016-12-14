@@ -79,7 +79,14 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
                     public void onTimeSet(TimePicker view, int hourOfDay,
                                           int minute) {
 
-                        tv_reminder_time.setText(hourOfDay + " : " + minute);
+                        String min = "";
+
+                        if(minute < 10){
+                            tv_reminder_time.setText(hourOfDay + " : 0" + minute);
+                        } else {
+                            tv_reminder_time.setText(hourOfDay + " : " + minute);
+                        }
+
                         mHour = hourOfDay;
                         mMinute = minute;
 
@@ -106,8 +113,10 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
         //Aqui é recebido o valor da checagem se houve ou não atualizações no dia anterior
         // Se houve cadastro ele retorna TRUE, c.c. ele retorna FALSE
         Log.e("RECEIVE TI", "ti no dia anterior? " + resp + " enable? " + switchRTEnable);
-        if(resp == false && switchRTEnable){
+        if(!resp && switchRTEnable){
             Log.e("start", "start" + switchRTEnable);
+            Log.d("hora", mHour + ":" + mMinute);
+
             startAlarm();
         }else {
             cancelAlarm();
@@ -135,8 +144,17 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
             this.switchRTEnable = enableRT;
             this.mHour = mHour;
             this.mMinute = mMinute;
-            tv_reminder_time.setText(mHour + ":" + mMinute);
+            setTime();
             FirebaseController.getInstance().checkUpdateInTimeInvested(mDatabase, this);
+        }
+    }
+
+    private void setTime() {
+        if (mMinute < 10){
+            tv_reminder_time.setText(mHour + ":0" + mMinute);
+
+        } else {
+            tv_reminder_time.setText(mHour + ":" + mMinute);
         }
     }
 
