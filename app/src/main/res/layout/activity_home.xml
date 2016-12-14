@@ -69,17 +69,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:layout_marginTop="64dp"
         android:layout_marginBottom="@dimen/activity_horizontal_margin"
         android:weightSum="3">
-        <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/histchart"
-            android:layout_width="fill_parent"
-            android:layout_height="245dp"
-            android:layout_margin="5dp" />
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.6"/>
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/histChart"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1.4"/>
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

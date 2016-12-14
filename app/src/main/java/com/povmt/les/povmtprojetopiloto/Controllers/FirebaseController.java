@@ -1,5 +1,6 @@
 package com.povmt.les.povmtprojetopiloto.Controllers;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -68,10 +69,14 @@ public class FirebaseController {
                     String updatedAt = (String) postSnapshot.child("updatedAt").getValue();
                     Object object = postSnapshot.child("totalInvestedTime").getValue();
                     Object object2 = postSnapshot.child("totalInvestedTimeWeek").getValue();
+                    Object object3 = postSnapshot.child("totalInvestedTimeLastWeek").getValue();
+                    Object object4 = postSnapshot.child("totalInvestedTimeLastLastWeek").getValue();
                     Object objectPrioridade = postSnapshot.child("prioridade").getValue();
 
                     int totalInvestedTime;
                     int totalInvestedTimeWeek;
+                    int totalInvestedTimeLastWeek;
+                    int totalInvestedTimeLastLastWeek;
 
                     if (object != null) {
 
@@ -84,9 +89,6 @@ public class FirebaseController {
                         totalInvestedTime = 0;
                     }
 
-                    int prioridade = Integer.parseInt(String.valueOf(objectPrioridade));
-
-                    ActivityItem activityItem = new ActivityItem(title, description, prioridade);
                     if (object2 != null) {
 
                         if (object2 instanceof Long) {
@@ -98,11 +100,39 @@ public class FirebaseController {
                         totalInvestedTimeWeek = 0;
                     }
 
+                    if (object3 != null) {
+
+                        if (object3 instanceof Long) {
+                            totalInvestedTimeLastWeek = ((Long) object3).intValue();
+                        } else {
+                            totalInvestedTimeLastWeek = Integer.valueOf((String) object3);
+                        }
+                    } else {
+                        totalInvestedTimeLastWeek = 0;
+                    }
+
+                    if (object4 != null) {
+
+                        if (object4 instanceof Long) {
+                            totalInvestedTimeLastLastWeek = ((Long) object4).intValue();
+                        } else {
+                            totalInvestedTimeLastLastWeek = Integer.valueOf((String) object4);
+                        }
+                    } else {
+                        totalInvestedTimeLastLastWeek = 0;
+                    }
+
+                    int prioridade = Integer.parseInt(String.valueOf(objectPrioridade));
+
+                    ActivityItem activityItem = new ActivityItem(title, description, prioridade);
+
                     activityItem.setCreatedAt(createdAt);
                     activityItem.setUpdatedAt(updatedAt);
                     activityItem.setUid(activityID);
                     activityItem.setTotalInvestedTime(totalInvestedTime);
                     activityItem.setTotalInvestedTimeWeek(totalInvestedTimeWeek);
+                    activityItem.setTotalInvestedTimeLastWeek(totalInvestedTimeLastWeek);
+                    activityItem.setTotalInvestedTimeLastLastWeek(totalInvestedTimeLastLastWeek);
 
                     if (auxItem == null) {
                         activityItems.add(activityItem);
@@ -190,11 +220,14 @@ public class FirebaseController {
                     DatabaseReference activityItemUpdateAtRef = activitiesRef.child("updatedAt");
                     DatabaseReference activityItemTotalTitRef = activitiesRef.child("totalInvestedTime");
                     DatabaseReference activityItemTotalTiWRef = activitiesRef.child("totalInvestedTimeWeek");
+                    DatabaseReference activityItemTotalTiLWRef = activitiesRef.child("totalInvestedTimeLastWeek");
+                    DatabaseReference activityItemTotalTiLLWRef = activitiesRef.child("totalInvestedTimeLastLastWeek");
                     activityItemUpdateAtRef.setValue(activityItem.getUpdatedAt());
                     activityItemTotalTitRef.setValue(activityItem.getTotalInvestedTime());
                     activityItemTotalTiWRef.setValue(activityItem.getTotalInvestedTimeWeek());
+                    activityItemTotalTiLWRef.setValue(activityItem.getTotalInvestedTimeLastWeek());
+                    activityItemTotalTiLLWRef.setValue(activityItem.getTotalInvestedTimeLastLastWeek());
                     listener.receiverTi(200, "TI cadastrada com sucesso");
-
                 }
             }
         });

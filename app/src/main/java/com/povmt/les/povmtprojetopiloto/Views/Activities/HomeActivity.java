@@ -33,6 +33,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -63,7 +64,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
@@ -112,6 +112,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private LinearLayout histChartLayout;
 
     private LineChart lineChart;
+    private List<Entry> lineEntries;
+    private LinearLayout lineChartLayout;
 
     private PieChart pieChart;
     private ArrayList<Float> yDataPieChart = new ArrayList<Float>();
@@ -158,11 +160,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         BarEntryLabels = new ArrayList<String>();
 
         //Declaração das paradas pra gerar o gráfico do Historico
-        histChart = (BarChart) findViewById(R.id.histchart);
+        histChart = (BarChart) findViewById(R.id.histChart);
         histEntries = new ArrayList<BarEntry>();
 
         // LineChart
         lineChart = (LineChart) findViewById(R.id.lineChart);
+        lineEntries = new ArrayList<>();
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
@@ -350,7 +353,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             histChartLayout.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
-            getSupportActionBar().hide();
             ti_total.setText("Tempo total investido: " + tempoTotal + " horas");
 
         } else if (id == R.id.nav_general_report) {
@@ -358,7 +360,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             histChartLayout.setVisibility(View.VISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
-            getSupportActionBar().hide();
 
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
@@ -536,6 +537,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         histChart.invalidate();
 
         // LineChart
+
     }
 
     private void sortListWeek() {

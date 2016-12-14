@@ -1,6 +1,5 @@
 package com.povmt.les.povmtprojetopiloto.Views.Activities;
 
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,10 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
@@ -29,7 +26,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Optional;
 
 public class HistoryActivity extends AppCompatActivity implements InvestedTimeListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -69,7 +65,7 @@ public class HistoryActivity extends AppCompatActivity implements InvestedTimeLi
 
         FirebaseController.getInstance().retrieveAllInvestedTimeItems(mDatabase, investedTimeItems, HistoryActivity.this);
 
-        histChart = (BarChart) findViewById(R.id.histchart);
+        histChart = (BarChart) findViewById(R.id.histChart);
         histEntries = new ArrayList<>();
         histLabels = new ArrayList<>();
 

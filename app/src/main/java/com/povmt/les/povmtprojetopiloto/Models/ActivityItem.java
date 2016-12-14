@@ -22,6 +22,8 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
     private int prioridade;
     private int totalInvestedTime;
     private int totalInvestedTimeWeek;
+    private int totalInvestedTimeLastWeek;
+    private int totalInvestedTimeLastLastWeek;
 
     public ActivityItem() {
     }
@@ -37,6 +39,8 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.totalInvestedTime = 0;
         this.prioridade = prioridade;
         this.totalInvestedTimeWeek = 0;
+        this.totalInvestedTimeLastWeek = 0;
+        this.totalInvestedTimeLastLastWeek = 0;
     }
 
     public String getUid() {
@@ -103,6 +107,22 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         this.totalInvestedTimeWeek = totalInvestedTimeWeek;
     }
 
+    public int getTotalInvestedTimeLastWeek() {
+        return totalInvestedTimeLastWeek;
+    }
+
+    public void setTotalInvestedTimeLastWeek(int totalInvestedTimeLastWeek) {
+        this.totalInvestedTimeLastWeek = totalInvestedTimeLastWeek;
+    }
+
+    public int getTotalInvestedTimeLastLastWeek() {
+        return totalInvestedTimeLastLastWeek;
+    }
+
+    public void setTotalInvestedTimeLastLastWeek(int totalInvestedTimeLastLastWeek) {
+        this.totalInvestedTimeLastLastWeek = totalInvestedTimeLastLastWeek;
+    }
+
     @Exclude
     public boolean isActivityWeek() {
 
@@ -129,6 +149,10 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         totalInvestedTime += investedTimeItem.getTime();
         if (investedTimeItem.isInvestedTimeWeek()) {
             totalInvestedTimeWeek += investedTimeItem.getTime();
+        } else if (investedTimeItem.isInvestedTimeLastWeek()) {
+            totalInvestedTimeLastWeek += investedTimeItem.getTime();
+        } else if (investedTimeItem.isInvestedTimeLastLastWeek()) {
+            totalInvestedTimeLastLastWeek += investedTimeItem.getTime();
         }
     }
 
@@ -143,6 +167,8 @@ public class ActivityItem implements Serializable, Comparable<ActivityItem> {
         result.put("sumInvestedTime", totalInvestedTime);
         result.put("prioridade", prioridade);
         result.put("sumInvestedTimeWeek", totalInvestedTimeWeek);
+        result.put("sumInvestedTimeLastWeek", totalInvestedTimeLastWeek);
+        result.put("sumInvestedTimeLastLastWeek", totalInvestedTimeLastLastWeek);
         return result;
     }
 
