@@ -21,10 +21,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.povmt.les.povmtprojetopiloto.Controllers.FirebaseController;
 import com.povmt.les.povmtprojetopiloto.Interfaces.InvestedTimeListener;
 import com.povmt.les.povmtprojetopiloto.Interfaces.UserInfoListener;
+import com.povmt.les.povmtprojetopiloto.Models.InvestedTimeItem;
 import com.povmt.les.povmtprojetopiloto.R;
 import com.povmt.les.povmtprojetopiloto.Service.AlarmReceiver;
 
 import java.util.Calendar;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -106,6 +108,11 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
 
     @Override
     public void receiverTi(int statusCode, String resp) {}
+
+    @Override
+    public void receiverTi(int statusCode, List<InvestedTimeItem> investedTimeItems, String resp) {
+
+    }
 
 
     @Override

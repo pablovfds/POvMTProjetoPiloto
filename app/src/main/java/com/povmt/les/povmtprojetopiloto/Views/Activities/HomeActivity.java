@@ -676,4 +676,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             plotHistChart();
         }
     }
+
+    @Override
+    public void receiverTi(int statusCode, boolean resp) {
+
+    }
 }

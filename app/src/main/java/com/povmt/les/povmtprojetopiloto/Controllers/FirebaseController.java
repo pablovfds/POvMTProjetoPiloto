@@ -62,9 +62,9 @@ public class FirebaseController {
     public void retrieveAllActivities(DatabaseReference mDatabase, final List<ActivityItem> activityItems,
                                       final ActivityListener listener) {
 
-        DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITIES);
+        //DatabaseReference activitiesRef = mDatabase.child(USERS).child(getUid()).child(ACTIVITIES);
         DatabaseReference userRef = mDatabase.child(USERS).child(getUid());
-        DatabaseReference activitiesRef = userRef.child(ACTIVITES);
+        DatabaseReference activitiesRef = userRef.child(ACTIVITIES);
 
         activitiesRef.addValueEventListener(new ValueEventListener() {
             @Override

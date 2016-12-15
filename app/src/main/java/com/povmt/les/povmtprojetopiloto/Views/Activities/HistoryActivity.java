@@ -118,6 +118,11 @@ public class HistoryActivity extends AppCompatActivity implements InvestedTimeLi
     }
 
     @Override
+    public void receiverTi(int statusCode, boolean resp) {
+
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
