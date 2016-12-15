@@ -76,20 +76,15 @@ import butterknife.OnClick;
 
 public class HomeActivity extends AppCompatActivity implements ActivityListener, NavigationView.OnNavigationItemSelectedListener, InvestedTimeListener {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
-    @BindView(R.id.nav_view)
-    NavigationView navigationView;
+    @BindView(R.id.nav_view) NavigationView navigationView;
 
-    @BindView(R.id.drawer_layout)
-    DrawerLayout drawer;
+    @BindView(R.id.drawer_layout) DrawerLayout drawer;
 
-    @BindView(R.id.fab_add_activity_item)
-    FloatingActionButton fab;
+    @BindView(R.id.fab_add_activity_item) FloatingActionButton fab;
 
-    @BindView(R.id.tv_total_time_invested)
-    TextView ti_total;
+    @BindView(R.id.tv_total_time_invested) TextView ti_total;
 
     private List<InvestedTimeItem> investedTimeItems;
     private List<ActivityItem> activityItems;
@@ -128,9 +123,13 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         ButterKnife.bind(this);
 
-        setSupportActionBar(toolbar);
+        if (getSupportActionBar() == null){
+            setSupportActionBar(toolbar);
+        }
 
-        getSupportActionBar().setTitle("Atividades Recentes");
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle("Atividades Recentes");
+        }
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -248,7 +247,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -258,9 +256,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void onBackPressed() {
-
         super.onBackPressed();
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -343,9 +339,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-
         int id = item.getItemId();
-
         if (id == R.id.nav_show_activities) {
             graphLayout.setVisibility(View.INVISIBLE);
             histChartLayout.setVisibility(View.INVISIBLE);
@@ -353,7 +347,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_show_graph) {
-
             graphLayout.setVisibility(View.VISIBLE);
             histChartLayout.setVisibility(View.INVISIBLE);
             recyclerViewActivities.setVisibility(View.INVISIBLE);
@@ -366,6 +359,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             recyclerViewActivities.setVisibility(View.INVISIBLE);
             fab.setVisibility(View.INVISIBLE);
 
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
             signOut();

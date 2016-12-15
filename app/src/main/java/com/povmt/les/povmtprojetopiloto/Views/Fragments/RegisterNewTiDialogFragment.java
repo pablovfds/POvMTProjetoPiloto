@@ -4,6 +4,7 @@ package com.povmt.les.povmtprojetopiloto.Views.Fragments;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
@@ -45,8 +46,6 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     private DatePickerDialog.OnDateSetListener date;
 
     private OnCompleteListener mListener;
-
-
 
     public static RegisterNewTiDialogFragment newInstance(ActivityItem activityItem) {
 
@@ -117,8 +116,6 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
     @OnClick(R.id.buttonCreate)
     public void createNewTiDialog(){
 
-
-
         inputTimeTi.setError(null);
         inputDateTi.setError(null);
         int investedTime = Integer.valueOf(inputTimeTi.getText().toString());
@@ -135,15 +132,10 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             dateFormat.setCalendar(cal);
             activityItem.setUpdatedAt(createdAt);
-            //activityItem.setUpdatedAt(dateFormat.format(cal.getTime()));
             activityItem.addNewInvestedTime(tiItem);
 
             FirebaseController.getInstance()
                     .insertTi(activityItem, tiItem, mDatabase, this);
-
-
-
-
         }
     }
 
@@ -174,6 +166,13 @@ public class RegisterNewTiDialogFragment extends DialogFragment implements Inves
 
     public static interface OnCompleteListener {
         public abstract void onComplete(ActivityItem item);
+    @Override
+    public void receiverTi(int statusCode, boolean resp) {
+
+    }
+
+    public interface OnCompleteListener {
+        void onComplete(ActivityItem item);
     }
 
     @Override

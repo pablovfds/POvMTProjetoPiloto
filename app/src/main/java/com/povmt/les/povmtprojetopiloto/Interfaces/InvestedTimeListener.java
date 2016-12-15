@@ -7,4 +7,5 @@ import java.util.List;
 public interface InvestedTimeListener {
     void receiverTi(int statusCode, String resp);
     void receiverTi(int statusCode, List<InvestedTimeItem> investedTimeItems, String resp);
+    void receiverTi(int statusCode, boolean resp);
 }
