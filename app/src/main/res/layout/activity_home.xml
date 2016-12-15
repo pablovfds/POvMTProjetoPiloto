@@ -76,13 +76,13 @@
             android:id="@+id/lineChart"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1.6"/>
+            android:layout_weight="1.5"/>
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/histChart"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
-            android:layout_weight="1.4"/>
+            android:layout_weight="1.5"/>
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

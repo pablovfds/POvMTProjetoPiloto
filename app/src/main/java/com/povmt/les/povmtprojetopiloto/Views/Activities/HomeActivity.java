@@ -23,8 +23,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.charts.PieChart;
@@ -34,11 +36,13 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.appindexing.AppIndex;
@@ -112,13 +116,10 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private LinearLayout histChartLayout;
 
     private LineChart lineChart;
-    private List<Entry> lineEntries;
-    private LinearLayout lineChartLayout;
-
     private PieChart pieChart;
+
     private ArrayList<Float> yDataPieChart = new ArrayList<Float>();
     private String[] xDataPieChart = {"BAIXA", "MÉDIA", "ALTA"};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +166,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         // LineChart
         lineChart = (LineChart) findViewById(R.id.lineChart);
-        lineEntries = new ArrayList<>();
 
         //Aqui acontece a mágica da plotagem do gráfico
         sortListWeek();
@@ -178,7 +178,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         //Configuração do PieChart
         pieChart = (PieChart) findViewById(R.id.chart2);
+        Description descricaoPieChart = new Description();
+        descricaoPieChart.setText("TEMPO INVESTIDO POR PRIORIDADE");
 
+        pieChart.setUsePercentValues(true);
+        pieChart.setDescription(descricaoPieChart);
 
         pieChart.setUsePercentValues(true);
         //pieChart.setDescription("TEMPO INVESTIDO POR PRIORIDADE");
@@ -243,6 +247,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
 
     @Override
     protected void onStart() {
@@ -320,7 +325,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         //adicionando cores
         ArrayList<Integer> colors = new ArrayList<>();
 
-        for(int c: Util.MY_COLORS_PIE_PRIORIDADE) colors.add(c);
+        for (int c : Util.MY_COLORS_PIE_PRIORIDADE) colors.add(c);
 
         dataSet.setColors(colors);
 
@@ -328,7 +333,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         PieData data = new PieData(dataSet);
         data.setValueFormatter(new PercentFormatter());
         data.setValueTextSize(12f);
-        data.setValueTextColor(Color.rgb(106,106,106));
+        data.setValueTextColor(Color.rgb(106, 106, 106));
 
         pieChart.setData(data);
         pieChart.highlightValues(null);
@@ -446,6 +451,19 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
      */
     private void itensOfWeekAndGraph() {
 
+        for (ActivityItem activityItem : activityItems) {
+            ActivityItem item = listContainsActivity(activityItemsWeek, activityItem.getUid());
+
+
+            if (item == null) {
+                activityItemsWeek.add(activityItem);
+            } else if (item.getTotalInvestedTimeWeek() > 0) {
+                activityItemsWeek.remove(item);
+                activityItemsWeek.add(activityItem);
+            }
+
+        }
+
         int cont = 0;
 
         tempoTotal = 0;
@@ -467,12 +485,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         xAxis.setValueFormatter(new MyXAxisValueFormatter(values));
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         ArrayList<BarEntry> listaBar = new ArrayList<>();
         // formatação do eixo y (esquerda)
         YAxis yAxis = chart.getAxisLeft();
         yAxis.setValueFormatter(new MyYAxisValueFormatter());
         yAxis.setGranularity(1f);
+        yAxis.setAxisMinimum(0);
 
         // ocultar eixo y (direita)
         YAxis yRAxis = chart.getAxisRight();
@@ -480,7 +500,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         yRAxis.setDrawAxisLine(false);
         yRAxis.setDrawGridLines(false);
 
-        BarDataSet bardataset = new BarDataSet(BARENTRY, "Total de horas por semana");
+        BarDataSet bardataset = new BarDataSet(BARENTRY, "Total de horas por atividade");
         BarData BARDATA = new BarData(bardataset);
 
         bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
@@ -489,10 +509,16 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         chart.setData(BARDATA);
         chart.setFitBars(true);
         chart.animateY(3000);
+        chart.setDrawBorders(true);
         chart.invalidate();
     }
 
     private void plotHistChart() {
+        plotBarChart();
+        plotLineChart();
+    }
+
+    private void plotBarChart() {
         int totalCurrentWeek = 0;
         int totalLastWeek = 0;
         int totalLastLastWeek = 0;
@@ -507,19 +533,21 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
             }
         }
 
-        histEntries.add(new BarEntry(0f, totalCurrentWeek));
+        histEntries.add(new BarEntry(0f, totalLastLastWeek));
         histEntries.add(new BarEntry(1f, totalLastWeek));
-        histEntries.add(new BarEntry(2f, totalLastLastWeek));
+        histEntries.add(new BarEntry(2f, totalCurrentWeek));
 
-        String[] values = new String[] { "Atual", "Passada", "Retrasada" };
+        String[] values = new String[]{ "Retrasada", "Passada", "Atual" };
         XAxis xAxis = histChart.getXAxis();
         xAxis.setValueFormatter(new MyXAxisValueFormatter(values));
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         YAxis yAxis = histChart.getAxisLeft();
         yAxis.setValueFormatter(new MyYAxisValueFormatter());
         yAxis.setGranularity(1f);
+        yAxis.setAxisMinimum(0);
 
         YAxis yRAxis = histChart.getAxisRight();
         yRAxis.setDrawLabels(false);
@@ -534,10 +562,95 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         histChart.setData(barData);
         histChart.setFitBars(true);
         histChart.animateY(3000);
+        histChart.setDrawBorders(true);
         histChart.invalidate();
+    }
 
+    private void plotLineChart() {
         // LineChart
 
+        List<Entry> lineAPriorityEntries = new ArrayList<Entry>();
+        List<Entry> lineMPriorityEntries = new ArrayList<Entry>();
+        List<Entry> lineBPriorityEntries = new ArrayList<Entry>();
+
+        float A1 = 0;
+        float A2 = 0;
+        float A3 = 0;
+
+        float M1 = 0;
+        float M2 = 0;
+        float M3 = 0;
+
+        float B1 = 0;
+        float B2 = 0;
+        float B3 = 0;
+
+        for (ActivityItem activityItem : activityItems) {
+            if (activityItem.getPrioridade() == Util.PRIORIDADE_ALTA) {
+                A1 += activityItem.getTotalInvestedTimeLastLastWeek();
+                A2 += activityItem.getTotalInvestedTimeLastWeek();
+                A3 += activityItem.getTotalInvestedTimeWeek();
+            } else if (activityItem.getPrioridade() == Util.PRIORIDADE_MEDIA) {
+                M1 += activityItem.getTotalInvestedTimeLastLastWeek();
+                M2 += activityItem.getTotalInvestedTimeLastWeek();
+                M3 += activityItem.getTotalInvestedTimeWeek();
+            } else if (activityItem.getPrioridade() == Util.PRIORIDADE_BAIXA) {
+                B1 += activityItem.getTotalInvestedTimeLastLastWeek();
+                B2 += activityItem.getTotalInvestedTimeLastWeek();
+                B3 += activityItem.getTotalInvestedTimeWeek();
+            }
+        }
+
+        lineAPriorityEntries.add(new Entry(0f, 0f));
+        lineAPriorityEntries.add(new Entry(1f, A1));
+        lineAPriorityEntries.add(new Entry(2f, A2));
+        lineAPriorityEntries.add(new Entry(3f, A3));
+        lineAPriorityEntries.add(new Entry(4f, 0f));
+
+        lineMPriorityEntries.add(new Entry(0f, 0f));
+        lineMPriorityEntries.add(new Entry(1f, M1));
+        lineMPriorityEntries.add(new Entry(2f, M2));
+        lineMPriorityEntries.add(new Entry(3f, M3));
+        lineMPriorityEntries.add(new Entry(4f, 0f));
+
+        lineBPriorityEntries.add(new Entry(0f, 0f));
+        lineBPriorityEntries.add(new Entry(1f, B1));
+        lineBPriorityEntries.add(new Entry(2f, B2));
+        lineBPriorityEntries.add(new Entry(3f, B3));
+        lineBPriorityEntries.add(new Entry(4f, 0f));
+
+        LineDataSet lineDataSet1 = new LineDataSet(lineAPriorityEntries, "Prioridade ALTA");
+        lineDataSet1.setColor(Color.BLUE);
+        LineDataSet lineDataSet2 = new LineDataSet(lineMPriorityEntries, "Prioridade MEDIA");
+        lineDataSet2.setColor(Color.RED);
+        LineDataSet lineDataSet3 = new LineDataSet(lineBPriorityEntries, "Prioridade BAIXA");
+        lineDataSet3.setColor(Color.GREEN);
+
+        List<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet1);
+        dataSets.add(lineDataSet2);
+        dataSets.add(lineDataSet3);
+
+        String[] lineValues = new String[]{"", "Retrasada", "Passada", "Atual", ""};
+        XAxis lineXAxis = lineChart.getXAxis();
+        lineXAxis.setValueFormatter(new MyXAxisValueFormatter(lineValues));
+        lineXAxis.setGranularity(1f);
+        lineXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        YAxis lineYAxis = lineChart.getAxisLeft();
+        lineYAxis.setValueFormatter(new MyYAxisValueFormatter());
+        lineYAxis.setGranularity(1f);
+
+        YAxis lineYRAxis = lineChart.getAxisRight();
+        lineYRAxis.setDrawLabels(false);
+        lineYRAxis.setDrawAxisLine(false);
+        lineYRAxis.setDrawGridLines(false);
+
+        LineData lineData = new LineData(dataSets);
+        lineChart.setData(lineData);
+        lineChart.setDrawBorders(true);
+        lineChart.animateXY(3000, 3000, Easing.EasingOption.EaseInCubic, Easing.EasingOption.EaseInBack);
+        lineChart.invalidate();
     }
 
     private void sortListWeek() {
