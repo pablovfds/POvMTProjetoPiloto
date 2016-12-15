@@ -280,11 +280,11 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         for (int i = 0; i < activityItemsWeek.size(); i++) {
             if (activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_BAIXA) {
-                sumTimeInvestPriorityMin += activityItemsWeek.get(i).getTotalInvestedTime();
+                sumTimeInvestPriorityMin += activityItemsWeek.get(i).getTotalInvestedTimeWeek();
             } else if (activityItemsWeek.get(i).getPrioridade() == Util.PRIORIDADE_MEDIA) {
-                sumTimeInvestPriorityMed += activityItemsWeek.get(i).getTotalInvestedTime();
+                sumTimeInvestPriorityMed += activityItemsWeek.get(i).getTotalInvestedTimeWeek();
             } else {
-                sumTimeInvestPriorityMax += activityItemsWeek.get(i).getTotalInvestedTime();
+                sumTimeInvestPriorityMax += activityItemsWeek.get(i).getTotalInvestedTimeWeek();
             }
         }
 
