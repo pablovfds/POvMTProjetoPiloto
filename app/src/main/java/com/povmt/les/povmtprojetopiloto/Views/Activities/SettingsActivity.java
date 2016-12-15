@@ -197,7 +197,7 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
         if(calendar.getTimeInMillis() >= System.currentTimeMillis()){
             manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                     AlarmManager.INTERVAL_DAY, pendingIntent);
-            Toast.makeText(this, "Alarm started!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Alarm started!", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -206,7 +206,7 @@ public class SettingsActivity extends AppCompatActivity implements InvestedTimeL
     public void cancelAlarm() {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         manager.cancel(pendingIntent);
-        Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
     }
 
 

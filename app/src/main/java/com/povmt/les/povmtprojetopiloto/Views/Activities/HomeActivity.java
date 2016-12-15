@@ -114,7 +114,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
     private PieChart pieChart;
 
     private ArrayList<Float> yDataPieChart = new ArrayList<Float>();
-    private String[] xDataPieChart = {"BAIXA", "MÉDIA", "ALTA"};
+    private String[] xDataPieChart = new String[] { "BAIXA", "MÉDIA", "ALTA" };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +184,6 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         pieChart.setDescription(descricaoPieChart);
 
         pieChart.setUsePercentValues(true);
-        //pieChart.setDescription("TEMPO INVESTIDO POR PRIORIDADE");
 
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleRadius(7);
@@ -199,8 +198,10 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
                 if (e == null) {
                     return;
                 } else {
-                    Toast.makeText(HomeActivity.this, xDataPieChart[(int) e.getX()] + " = " +
-                            ((PieEntry) e).getValue() + "%", Toast.LENGTH_SHORT).show();
+                    PieEntry pieEntry = (PieEntry) e;
+//                    Toast.makeText(HomeActivity.this, xDataPieChart[(int) e.getX()] + " = " +
+//                            ((PieEntry) e).getValue() + "%", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, pieEntry.getLabel() + " = " + pieEntry.getValue(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -314,7 +315,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
         }
 
         //criando pie data set
-        PieDataSet dataSet = new PieDataSet(yVals1, "PRIORIDADES");
+        List<PieEntry> entries = new ArrayList<>();
+        entries.add(new PieEntry(percAltaPrioridade, "ALTA"));
+        entries.add(new PieEntry(percMediaPrioridade, "MEDIA"));
+        entries.add(new PieEntry(percBaixaPrioridade, "BAIXA"));
+        //PieDataSet dataSet = new PieDataSet(yVals1, "PRIORIDADES");
+        PieDataSet dataSet = new PieDataSet(entries, "Prioridades");
         dataSet.setSliceSpace(3);
         dataSet.setSelectionShift(5);
 
@@ -333,6 +339,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityListener,
 
         pieChart.setData(data);
         pieChart.highlightValues(null);
+        pieChart.setDrawEntryLabels(false);
+        pieChart.animateX(3000);
         pieChart.invalidate();
 
     }
